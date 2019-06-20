@@ -64,8 +64,8 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
                 public void onClick(View v) {
                     if(getItem(position)!=null)
                     {
-
-
+                        Intent intent = new Intent(getContext(),ContestActivity.class);
+                        mContext.startActivity(intent);
                     }
 
                 }
