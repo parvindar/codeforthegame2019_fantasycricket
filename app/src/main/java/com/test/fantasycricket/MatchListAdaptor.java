@@ -35,6 +35,7 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
             String team2 = getItem(position).team2;
             String date = getItem(position).date;
             Boolean started = getItem(position).started;
+            String type = getItem(position).matchtype;
 
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(mResource, parent, false);
@@ -43,9 +44,11 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
             TextView team2tv = convertView.findViewById(R.id.tv_team2);
             TextView timeleft = convertView.findViewById(R.id.tv_timeleft);
             TextView matchstatus = convertView.findViewById(R.id.tv_matchstatus);
+            TextView matchtype = convertView.findViewById(R.id.tv_matchtype);
             team1tv.setText(team1);
             team2tv.setText(team2);
             timeleft.setText(date);
+            matchtype.setText(type);
             if(started)
             {
                 matchstatus.setText("Started");
