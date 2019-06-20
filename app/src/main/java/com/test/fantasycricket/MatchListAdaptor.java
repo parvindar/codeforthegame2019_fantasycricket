@@ -31,8 +31,8 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
     public View getView(final int position, View convertView, ViewGroup parent) {
         if(getItem(position)!=null) {
 
-            String team1 = getItem(position).team1;
-            String team2 = getItem(position).team2;
+            final String team1 = getItem(position).team1;
+            final String team2 = getItem(position).team2;
             String date = getItem(position).date;
             Boolean started = getItem(position).started;
             String type = getItem(position).matchtype;
@@ -65,6 +65,8 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
                     if(getItem(position)!=null)
                     {
                         Intent intent = new Intent(getContext(),ContestActivity.class);
+                        intent.putExtra("team1",team1);
+                        intent.putExtra("team2",team2);
                         mContext.startActivity(intent);
                     }
 
