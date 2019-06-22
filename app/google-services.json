@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "168985424187",
+    "firebase_url": "https://fantasycricket-af35d.firebaseio.com",
+    "project_id": "fantasycricket-af35d",
+    "storage_bucket": "fantasycricket-af35d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168985424187:android:dab33d6ac7089391",
+        "android_client_info": {
+          "package_name": "com.test.fantasycricket"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "168985424187-l32heprp2qlso1ksru6a8b0af3ojuqk0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.test.fantasycricket",
+            "certificate_hash": "81410122458057de327cb47cbfa3680ace47deda"
+          }
+        },
+        {
+          "client_id": "168985424187-rrle7srorhm2au0rf6glkgb5j0jva4qr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARJ9VbXREitiPRO-ebU1AfFoVjNTpf3q4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168985424187-rrle7srorhm2au0rf6glkgb5j0jva4qr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

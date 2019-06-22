@@ -9,7 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.firestore.ThrowOnExtraProperties;
 
 import java.util.List;
 
@@ -33,7 +37,7 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
 
             final String team1 = getItem(position).team1;
             final String team2 = getItem(position).team2;
-            String date = getItem(position).date;
+            String timeleft = getItem(position).timeleft;
             Boolean started = getItem(position).started;
             String type = getItem(position).matchtype;
 
@@ -42,12 +46,14 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
 
             TextView team1tv = convertView.findViewById(R.id.tv_team1);
             TextView team2tv = convertView.findViewById(R.id.tv_team2);
-            TextView timeleft = convertView.findViewById(R.id.tv_timeleft);
+            TextView timelefttv = convertView.findViewById(R.id.tv_timeleft);
             TextView matchstatus = convertView.findViewById(R.id.tv_matchstatus);
             TextView matchtype = convertView.findViewById(R.id.tv_matchtype);
+            LinearLayout linearLayout = convertView.findViewById(R.id.ll_matchelement_layout);
+
             team1tv.setText(team1);
             team2tv.setText(team2);
-            timeleft.setText(date);
+            timelefttv.setText(timeleft);
             matchtype.setText(type);
             if(started)
             {
@@ -57,6 +63,15 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
             {
                 matchstatus.setText("");
             }
+            if(!getItem(position).open)
+            {
+                linearLayout.setBackgroundColor(Color.parseColor("#E0E0E0"));
+            }
+            else
+            {
+//                linearLayout.setBackgroundColor(Color.parseColor("#05a2cffe"));
+            }
+
 
 
             convertView.setOnClickListener(new View.OnClickListener() {
@@ -64,10 +79,19 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
                 public void onClick(View v) {
                     if(getItem(position)!=null)
                     {
-                        Intent intent = new Intent(getContext(),ContestActivity.class);
-                        intent.putExtra("team1",team1);
-                        intent.putExtra("team2",team2);
-                        mContext.startActivity(intent);
+
+                        if(getItem(position).open)
+                        {
+                            Intent intent = new Intent(getContext(),ContestActivity.class);
+                            intent.putExtra("team1",team1);
+                            intent.putExtra("team2",team2);
+                            ContestActivity.matchid = getItem(position).uniqueid;
+                            mContext.startActivity(intent);
+                        }
+                        else
+                        {
+                            Toast.makeText(mContext,"Contests will open soon for this match!",Toast.LENGTH_LONG).show();
+                        }
                     }
 
                 }

@@ -67,6 +67,17 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="9dp"
             android:layout_marginTop="4dp"
+            android:text="0"
+            android:textColor="@android:color/holo_orange_dark" />
+
+        <TextView
+            android:id="@+id/tv_spotsleft2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pb_spotsfilled"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="4dp"
+            android:layout_toEndOf="@+id/tv_spotsleft"
             android:text="Spots left" />
 
         <TextView
@@ -74,10 +85,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/pb_spotsfilled"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="5dp"
+            android:layout_toStartOf="@+id/tv_totalspots2"
+            android:text="200" />
+
+        <TextView
+            android:id="@+id/tv_totalspots2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pb_spotsfilled"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="3dp"
-            android:layout_marginEnd="21dp"
-            android:text="Total Spots" />
+            android:layout_marginEnd="17dp"
+            android:text="Spots" />
 
         <TextView
             android:id="@+id/textView3"
