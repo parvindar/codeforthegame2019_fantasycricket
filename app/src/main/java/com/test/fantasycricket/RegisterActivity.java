@@ -212,6 +212,7 @@ public class RegisterActivity extends AppCompatActivity {
                 user.put("UserType","user");
                 user.put("Cash",0.00);
                 user.put("Winnings",0);
+                user.put("xp",0);
 
                 db.collection("Users")
                         .document(username)

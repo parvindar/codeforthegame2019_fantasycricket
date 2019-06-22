@@ -13,8 +13,9 @@ public class UserInfo {
     static ArrayList<String> contests;
     static Double cash;
     static Integer winnings;
+    static Integer xp;
 
-    public static void  login(String _usertype,String _username,String _name,String _email,Double _cash,Integer _winnings)
+    public static void  login(String _usertype,String _username,String _name,String _email,Double _cash,Integer _winnings,Integer _xp)
     {
         logined=true;
         usertype=_usertype;
@@ -23,6 +24,7 @@ public class UserInfo {
         email=_email;
         cash=_cash;
         winnings=_winnings;
+        xp = _xp;
 
 
     }

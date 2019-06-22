@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                                 user = document.getData();
                                 if(user.get("Password").equals(password)){
                                     Toast.makeText(getApplicationContext(), "Welcome "+ user.get("Name"), Toast.LENGTH_LONG).show();
-                                    UserInfo.login(user.get("UserType").toString(),user.get("Username").toString(),user.get("Name").toString(),user.get("Email").toString(),Double.parseDouble(user.get("Cash").toString()),Integer.parseInt(user.get("Winnings").toString()));
+                                    UserInfo.login(user.get("UserType").toString(),user.get("Username").toString(),user.get("Name").toString(),user.get("Email").toString(),Double.parseDouble(user.get("Cash").toString()),Integer.parseInt(user.get("Winnings").toString()),Integer.parseInt(user.get("xp").toString()));
                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                     startActivity(intent);
 

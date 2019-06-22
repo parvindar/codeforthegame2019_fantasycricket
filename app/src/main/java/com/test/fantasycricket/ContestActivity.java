@@ -48,6 +48,7 @@ public class ContestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contest);
+        CreateTeamActivity.matchid = matchid;
         db=FirebaseFirestore.getInstance();
 
         contestlist=findViewById(R.id.lv_contests);
@@ -289,6 +290,11 @@ public class ContestActivity extends AppCompatActivity {
                             btn_participate.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+
+                                    Intent intent = new Intent(ContestActivity.this,CreateTeamActivity.class);
+                                    intent.putExtra("team1",team1);
+                                    intent.putExtra("team2",team2);
+                                    startActivity(intent);
 
                                 }
                             });
