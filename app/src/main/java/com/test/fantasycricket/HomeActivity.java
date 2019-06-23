@@ -1,9 +1,12 @@
 package com.test.fantasycricket;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,10 +20,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +45,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class HomeActivity extends AppCompatActivity
@@ -46,23 +56,63 @@ public class HomeActivity extends AppCompatActivity
     ArrayList<Match> matches;
     JSONObject matchlistobject;
     MatchListAdaptor matchListAdaptor;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         FirebaseApp.initializeApp(getApplicationContext());
 
+
+        //AUTO LOG-IN FUNCTION.
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("app",Context.MODE_PRIVATE);
+        Boolean islogined =sharedPref.getBoolean("logined",false);
+        if(islogined)
+        {
+            final String username = sharedPref.getString("username",null);
+            final String password = sharedPref.getString("password",null);
+            if(username!=null && password!=null)
+            {
+                db.collection("Users").document(username).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Map<String, Object> user = new HashMap<>();
+                                user = document.getData();
+                                if(user.get("Password").equals(password)){
+                                    Toast.makeText(getApplicationContext(), "Welcome "+ user.get("Name"), Toast.LENGTH_LONG).show();
+                                    UserInfo.login(user.get("UserType").toString(),user.get("Username").toString(),user.get("Name").toString(),user.get("Email").toString(),Double.parseDouble(user.get("Cash").toString()),Integer.parseInt(user.get("Winnings").toString()),Integer.parseInt(user.get("xp").toString()));
+
+                                }
+                                else{
+                                    Toast.makeText(getApplicationContext(), "Auto-login failed. Login manually", Toast.LENGTH_LONG).show();
+                                }
+
+                            } else {
+                                Toast.makeText(getApplicationContext(), "There was some error in auto-login. Login manually", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
+                });
+
+            }
+        }
+
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,6 +129,23 @@ public class HomeActivity extends AppCompatActivity
 //        Log.d("DATE --- ",temp.toString());
 
         new getmatchestask().execute();
+
+
+        Button myaccountbtn = findViewById(R.id.btn_account);
+        myaccountbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(UserInfo.logined)
+                {
+                    Intent intent = new Intent(HomeActivity.this,MyAccountActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    Toast.makeText(HomeActivity.this,"You need to login first!",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
 
 
@@ -140,7 +207,7 @@ public class HomeActivity extends AppCompatActivity
             }
             else
             {
-                Toast.makeText(HomeActivity.this,"Login first!",Toast.LENGTH_LONG).show();
+                Toast.makeText(HomeActivity.this,"You need to login first!",Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this,LoginActivity.class);
                 startActivity(intent);
 
@@ -150,11 +217,12 @@ public class HomeActivity extends AppCompatActivity
 
             if(UserInfo.logined)
             {
-
+                Intent intent = new Intent(HomeActivity.this,MyAccountActivity.class);
+                startActivity(intent);
             }
             else
             {
-                Toast.makeText(HomeActivity.this,"Login first!",Toast.LENGTH_LONG).show();
+                Toast.makeText(HomeActivity.this,"You need to login first!",Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this,LoginActivity.class);
                 startActivity(intent);
 
@@ -177,6 +245,12 @@ public class HomeActivity extends AppCompatActivity
             if(UserInfo.logined)
             {
                 UserInfo.logout();
+                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("app",Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean("logined",false);
+                editor.putString("password",null);
+                editor.commit();
+
                 Toast.makeText(HomeActivity.this,"Successfully logged out",Toast.LENGTH_LONG).show();
 
             }
@@ -251,7 +325,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     class getmatchestask extends AsyncTask<String, Boolean, Boolean> {
-        @RequiresApi(api = Build.VERSION_CODES.O)
+
         @Override
         protected Boolean doInBackground(String... params) {
             //Do Stuff that takes ages (background thread)
@@ -259,7 +333,7 @@ public class HomeActivity extends AppCompatActivity
 
             try {
 
-                matchlistobject = getJSONObjectFromURL("https://cricapi.com/api/matches?apikey=VdUTmLVaoVNmU4V8wnQR6LBnezo2");
+                matchlistobject = getJSONObjectFromURL(Constants.API_URL_NEWMATCHES);
                 JSONArray matchesjsonArray =matchlistobject.getJSONArray("matches");
                 String team1,team2,date,matchtype,uniqueid;
                 Boolean matchstarted;

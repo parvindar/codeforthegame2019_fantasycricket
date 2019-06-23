@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,10 +36,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setContentView(R.layout.activity_register);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         FirebaseApp.initializeApp(getApplicationContext());
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
         TextView text_reg = (TextView) findViewById(R.id.tv_loginText);
         text_reg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +214,7 @@ public class RegisterActivity extends AppCompatActivity {
                 user.put("Username", username);
                 user.put("Password", password);
                 user.put("UserType","user");
-                user.put("Cash",0.00);
+                user.put("Cash",100.00);
                 user.put("Winnings",0);
                 user.put("xp",0);
 
@@ -236,4 +240,21 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
+    }
+
 }

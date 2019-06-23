@@ -1,5 +1,8 @@
 package com.test.fantasycricket;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.util.ArrayList;
 
 public class UserInfo {
@@ -25,7 +28,6 @@ public class UserInfo {
         cash=_cash;
         winnings=_winnings;
         xp = _xp;
-
 
     }
 

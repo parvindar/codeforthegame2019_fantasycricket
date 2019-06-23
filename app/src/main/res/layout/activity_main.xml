@@ -50,21 +50,25 @@
             android:layout_height="match_parent"
             android:layout_weight="5"
             android:orientation="horizontal"
-            android:weightSum="9">
+            android:weightSum="2">
 
             <Button
                 android:id="@+id/btn_mymatches"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="6"
-                android:text="My matches" />
+                android:layout_weight="1"
+                android:background="@color/design_default_color_primary"
+                android:text="My matches"
+                android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/btn_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="6"
-                android:text="Me" />
+                android:layout_weight="1"
+                android:background="@color/design_default_color_primary"
+                android:text="Me"
+                android:textColor="@android:color/white" />
         </LinearLayout>
     </LinearLayout>
 

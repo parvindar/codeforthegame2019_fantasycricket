@@ -9,7 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,15 +23,18 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +46,7 @@ public class ContestActivity extends AppCompatActivity {
     String team1,team2;
     ArrayList<Contest> contestArrayList;
     String contestname,totalprize,totalspots,price;
-    Double gain;
+    Double gain,gainfactor=20.0;
     FirebaseFirestore db;
     public static DecimalFormat dec = new DecimalFormat("#0.00");
 
@@ -48,6 +55,9 @@ public class ContestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contest);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         CreateTeamActivity.matchid = matchid;
         db=FirebaseFirestore.getInstance();
 
@@ -61,11 +71,41 @@ public class ContestActivity extends AppCompatActivity {
 
         team1tv.setText(team1);
         team2tv.setText(team2);
-        contestArrayList.add(new Contest(10000,100,25,120));
-        contestArrayList.add(new Contest(500,1,168,600));
-        contestArrayList.add(new Contest(100000,100,250,1200));
-        contestArrayList.add(new Contest(1000,10,50,120));
-        contestArrayList.add(new Contest(50000,10,3680,6000));
+
+        db.collection("Matches").document(matchid).collection("Contests").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                contestArrayList.clear();
+                for( DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments())
+                {
+                    Log.d("DOCUMENT DEBUG ",String.valueOf(matchid)+ "  "+String.valueOf(queryDocumentSnapshots.size()));
+                    Log.d("DOCUMENT DEBUG ",documentSnapshot.getId());
+                    String prize,price,spotsfilled,totalspots;
+                    String contestname,id;
+
+                    prize = documentSnapshot.getData().get("TotalPrize").toString();
+                    price = documentSnapshot.getData().get("Price").toString();
+                    spotsfilled = (documentSnapshot.getData().get("SpotsFilled").toString());
+                    totalspots = (documentSnapshot.getData().get("TotalSpots").toString());
+                    id= documentSnapshot.getId();
+                    contestname = documentSnapshot.getString("ContestName");
+                    Contest currcontest = new Contest(id,Double.valueOf(prize),Double.valueOf(price),Integer.valueOf(spotsfilled),Integer.valueOf(totalspots));
+                    currcontest.contestname = contestname;
+                    contestArrayList.add(currcontest);
+
+                }
+
+                ContestListAdaptor contestListAdaptor = new ContestListAdaptor(ContestActivity.this,R.layout.contest,contestArrayList);
+                contestlist.setAdapter(contestListAdaptor);
+
+            }
+        });
+
+//        contestArrayList.add(new Contest(10000,100,25,120));
+//        contestArrayList.add(new Contest(500,1,168,600));
+//        contestArrayList.add(new Contest(100000,100,250,1200));
+//        contestArrayList.add(new Contest(1000,10,50,120));
+//        contestArrayList.add(new Contest(50000,10,3680,6000));
 
 
         ContestListAdaptor contestListAdaptor = new ContestListAdaptor(this,R.layout.contest,contestArrayList);
@@ -99,14 +139,26 @@ public class ContestActivity extends AppCompatActivity {
                         contestname = et_contestname.getText().toString();
                         totalprize = et_totalprize.getText().toString();
                         totalspots = et_totalspots.getText().toString();
-                        price = tv_price.getText().toString();
+//                        price = tv_price.getText().toString();
+
+                        if(totalspots.isEmpty() || totalprize.isEmpty() || price.isEmpty())
+                        {
+                            Toast.makeText(ContestActivity.this,"Fill the details.",Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        if(Integer.parseInt(totalspots)<5)
+                        {
+                            Toast.makeText(ContestActivity.this,"Minimum 5 spots",Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
                         Map<String,Object> contest = new HashMap<>();
                         contest.put("ContestName",contestname);
                         contest.put("TotalPrize",totalprize);
                         contest.put("TotalSpots",totalspots);
                         contest.put("Price",price);
-                        contest.put("SpotsFilled",0);
+                        contest.put("SpotsFilled","0");
                         db.collection("Matches").document(matchid).collection("Contests").add(contest).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
@@ -115,9 +167,6 @@ public class ContestActivity extends AppCompatActivity {
 
                             }
                         });
-
-
-
 
                     }
                 });
@@ -133,22 +182,35 @@ public class ContestActivity extends AppCompatActivity {
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         if(!s.toString().isEmpty() && !et_totalspots.getText().toString().isEmpty())
                         {
+                            if(Double.valueOf(s.toString())>10000 && UserInfo.usertype.equals("user"))
+                            {
+                                et_totalprize.setText("10000");
+                                Toast.makeText(ContestActivity.this,"You can't set Prize greater than 10000",Toast.LENGTH_LONG).show();
+                            }
+
                             TextView tv_price =(TextView)dialogView.findViewById(R.id.tv_price);
 
-                            if(Double.parseDouble(s.toString())==0 || Double.parseDouble(et_totalspots.getText().toString())==0)
+                            if( Double.parseDouble(et_totalspots.getText().toString())==0)
                             {
-
                                 return;
                             }
                             String prize = s.toString();
                             Double prizeamt= Double.parseDouble(prize);
                             Double totalspots = Double.parseDouble(et_totalspots.getText().toString());
-                            gain = prizeamt/5.0;
+                            gain = prizeamt*(gainfactor/100);
                             price =String.valueOf (dec.format((prizeamt + gain)/totalspots));
                             if(Double.parseDouble(price)<1)
                             {
-                                price="1";
-                                gain = totalspots-prizeamt;
+                                if(Double.parseDouble(prize)==0)
+                                {
+                                    price="0";
+                                    gain=0.0;
+                                }
+                                else
+                                {
+                                    price="1";
+                                    gain = totalspots-prizeamt;
+                                }
                             }
                             tv_price.setText(UserInfo.INR+price);
 
@@ -173,7 +235,8 @@ public class ContestActivity extends AppCompatActivity {
 
                         if(!et_totalprize.getText().toString().isEmpty() &&  !s.toString().isEmpty())
                         {
-                            if(Double.parseDouble(s.toString())==0 || Double.parseDouble(et_totalprize.getText().toString())==0)
+
+                            if(Double.parseDouble(s.toString())==0 )
                             {
                                 return;
                             }
@@ -181,12 +244,20 @@ public class ContestActivity extends AppCompatActivity {
                              String prize = et_totalprize.getText().toString();
                              Double prizeamt= Double.parseDouble(prize);
                              Double totalspots = Double.parseDouble(s.toString());
-                             gain = prizeamt/5.0;
+                             gain = prizeamt*(gainfactor/100);
                             price =String.valueOf (dec.format((prizeamt + gain)/totalspots));
                             if(Double.parseDouble(price)<1)
                             {
-                                price="1";
-                                gain = totalspots-prizeamt;
+                                if(Double.parseDouble(prize)==0)
+                                {
+                                    price="0";
+                                    gain=0.0;
+                                }
+                                else
+                                {
+                                    price="1";
+                                    gain = totalspots-prizeamt;
+                                }
                             }
                              TextView tv_price =(TextView)dialogView.findViewById(R.id.tv_price);
                              tv_price.setText(UserInfo.INR+price);
@@ -208,15 +279,18 @@ public class ContestActivity extends AppCompatActivity {
 
 
     class Contest{
-        Integer prize,price,spotsfilled,totalspots;
+        Integer spotsfilled,totalspots;
+        Double prize,price;
         String contestname;
+        public String id;
 
-        public Contest(Integer prize, Integer price, Integer spotsfilled, Integer totalspots) {
+        public Contest(String id,Double prize, Double price, Integer spotsfilled, Integer totalspots) {
             this.prize = prize;
             this.price = price;
             this.spotsfilled = spotsfilled;
             this.totalspots = totalspots;
             this.contestname ="";
+            this.id = id;
         }
     }
 
@@ -239,8 +313,8 @@ public class ContestActivity extends AppCompatActivity {
         public View getView(final int position, View convertView, ViewGroup parent) {
             if(getItem(position)!=null) {
 
-                Integer prize = getItem(position).prize;
-                Integer price = getItem(position).price;
+                Double prize = getItem(position).prize;
+                final Double price = getItem(position).price;
                 Integer spotsfilled = getItem(position).spotsfilled;
                 Integer totalspots = getItem(position).totalspots;
 
@@ -252,11 +326,28 @@ public class ContestActivity extends AppCompatActivity {
                 TextView spotslefttv = convertView.findViewById(R.id.tv_spotsleft);
                 TextView totalspotstv = convertView.findViewById(R.id.tv_totalspots);
                 ProgressBar spotsfilledpb = convertView.findViewById(R.id.pb_spotsfilled);
+                TextView contestnametv = convertView.findViewById(R.id.tv_contestname);
                 pricetv.setText(UserInfo.INR+String.valueOf(price));
                 prizetv.setText(UserInfo.INR+String.valueOf(prize));
                 totalspotstv.setText(String.valueOf(totalspots));
                 spotslefttv.setText(String.valueOf(totalspots-spotsfilled));
                 spotsfilledpb.setProgress((100*spotsfilled)/totalspots);
+
+                contestnametv.setText(getItem(position).contestname);
+                if(prize==0 && !getItem(position).contestname.isEmpty())
+                {
+                    if(getItem(position).contestname.length()>13)
+                    {
+                        prizetv.setTextSize(TypedValue.COMPLEX_UNIT_SP,16f);
+                    }
+                    prizetv.setText(getItem(position).contestname);
+
+
+                    contestnametv.setText("");
+
+                }
+
+
 
 
 
@@ -294,7 +385,12 @@ public class ContestActivity extends AppCompatActivity {
                                     Intent intent = new Intent(ContestActivity.this,CreateTeamActivity.class);
                                     intent.putExtra("team1",team1);
                                     intent.putExtra("team2",team2);
+                                    intent.putExtra("price",getItem(position).price);
+                                    CreateTeamActivity.contestid=getItem(position).id;
+                                    CreateTeamActivity.matchid=matchid;
                                     startActivity(intent);
+
+                                    b.dismiss();
 
                                 }
                             });
@@ -302,7 +398,6 @@ public class ContestActivity extends AppCompatActivity {
 
 
 
-                            Toast.makeText(getApplicationContext(),"It will work soon!",Toast.LENGTH_LONG).show();
                         }
 
                     }
@@ -316,6 +411,22 @@ public class ContestActivity extends AppCompatActivity {
 
 
 
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
     }
 
 

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp">
 
     <RelativeLayout
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:layout_margin="0dp"
+        android:paddingBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -18,27 +20,27 @@
 
         <TextView
             android:id="@+id/tv_prize"
-            android:layout_width="198dp"
+            android:layout_width="282dp"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/textView3"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="18dp"
-            android:layout_marginEnd="143dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="-2dp"
+            android:layout_marginEnd="7dp"
             android:layout_toStartOf="@+id/tv_price"
-            android:text="Rs. 10000"
+            android:text="Rs. 1000"
             android:textColor="@android:color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_price"
-            android:layout_width="75dp"
+            android:layout_width="87dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_below="@+id/textView4"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="27dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="18dp"
             android:background="#A3CBFF"
             android:text="Rs. 100"
             android:textAlignment="center"
@@ -48,13 +50,13 @@
         <ProgressBar
             android:id="@+id/pb_spotsfilled"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="376dp"
+            android:layout_width="375dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_prize"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="7dp"
             android:layout_marginTop="6dp"
-            android:layout_marginEnd="-72dp"
+            android:layout_marginEnd="-86dp"
             android:layout_toStartOf="@+id/tv_price"
             android:progress="25"
             android:progressTint="@color/colorAccent" />
@@ -65,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/pb_spotsfilled"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="9dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:text="0"
             android:textColor="@android:color/holo_orange_dark" />
@@ -85,7 +87,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/pb_spotsfilled"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="5dp"
             android:layout_toStartOf="@+id/tv_totalspots2"
             android:text="200" />
@@ -96,29 +98,43 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/pb_spotsfilled"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="17dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="18dp"
             android:text="Spots" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_contestname"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="9dp"
-            android:layout_marginTop="1dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="3dp"
             android:text="Prize Pool" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="44dp"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_contestname"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="29dp"
+            android:text="Entry" />
+
+        <TextView
+            android:id="@+id/tv_contestname"
+            android:layout_width="379dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="7dp"
-            android:layout_marginEnd="28dp"
-            android:text="Entry" />
+            android:layout_marginStart="7dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="15dp"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textStyle="bold" />
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>
