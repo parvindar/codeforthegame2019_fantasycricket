@@ -78,19 +78,20 @@ public class ContestActivity extends AppCompatActivity {
                 contestArrayList.clear();
                 for( DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments())
                 {
-                    Log.d("DOCUMENT DEBUG ",String.valueOf(matchid)+ "  "+String.valueOf(queryDocumentSnapshots.size()));
-                    Log.d("DOCUMENT DEBUG ",documentSnapshot.getId());
                     String prize,price,spotsfilled,totalspots;
                     String contestname,id;
+                    boolean contestfinished;
 
                     prize = documentSnapshot.getData().get("TotalPrize").toString();
                     price = documentSnapshot.getData().get("Price").toString();
                     spotsfilled = (documentSnapshot.getData().get("SpotsFilled").toString());
                     totalspots = (documentSnapshot.getData().get("TotalSpots").toString());
+                    contestfinished=(boolean)documentSnapshot.getData().get("Finished");
                     id= documentSnapshot.getId();
                     contestname = documentSnapshot.getString("ContestName");
                     Contest currcontest = new Contest(id,Double.valueOf(prize),Double.valueOf(price),Integer.valueOf(spotsfilled),Integer.valueOf(totalspots));
                     currcontest.contestname = contestname;
+                    currcontest.finished=contestfinished;
                     contestArrayList.add(currcontest);
 
                 }
@@ -100,12 +101,6 @@ public class ContestActivity extends AppCompatActivity {
 
             }
         });
-
-//        contestArrayList.add(new Contest(10000,100,25,120));
-//        contestArrayList.add(new Contest(500,1,168,600));
-//        contestArrayList.add(new Contest(100000,100,250,1200));
-//        contestArrayList.add(new Contest(1000,10,50,120));
-//        contestArrayList.add(new Contest(50000,10,3680,6000));
 
 
         ContestListAdaptor contestListAdaptor = new ContestListAdaptor(this,R.layout.contest,contestArrayList);
@@ -159,6 +154,7 @@ public class ContestActivity extends AppCompatActivity {
                         contest.put("TotalSpots",totalspots);
                         contest.put("Price",price);
                         contest.put("SpotsFilled","0");
+                        contest.put("Finished",false);
                         db.collection("Matches").document(matchid).collection("Contests").add(contest).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
@@ -278,11 +274,12 @@ public class ContestActivity extends AppCompatActivity {
 
 
 
-    class Contest{
+    private class Contest{
         Integer spotsfilled,totalspots;
         Double prize,price;
         String contestname;
         public String id;
+        public boolean finished=false;
 
         public Contest(String id,Double prize, Double price, Integer spotsfilled, Integer totalspots) {
             this.prize = prize;
@@ -329,6 +326,13 @@ public class ContestActivity extends AppCompatActivity {
                 TextView contestnametv = convertView.findViewById(R.id.tv_contestname);
                 pricetv.setText(UserInfo.INR+String.valueOf(price));
                 prizetv.setText(UserInfo.INR+String.valueOf(prize));
+
+                if(prize/10000000>=1)
+                {
+                    Double _prizeunit = prize/10000000;
+                    prizetv.setText(Constants.INR+String.valueOf(_prizeunit)+" Cr.");
+                }
+
                 totalspotstv.setText(String.valueOf(totalspots));
                 spotslefttv.setText(String.valueOf(totalspots-spotsfilled));
                 spotsfilledpb.setProgress((100*spotsfilled)/totalspots);
@@ -344,7 +348,6 @@ public class ContestActivity extends AppCompatActivity {
 
 
                     contestnametv.setText("");
-
                 }
 
 

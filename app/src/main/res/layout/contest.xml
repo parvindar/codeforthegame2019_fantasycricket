@@ -37,7 +37,7 @@
             android:id="@+id/tv_price"
             android:layout_width="87dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView4"
+            android:layout_below="@+id/tv_entry_label"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="18dp"
@@ -113,7 +113,7 @@
             android:text="Prize Pool" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/tv_entry_label"
             android:layout_width="44dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_contestname"

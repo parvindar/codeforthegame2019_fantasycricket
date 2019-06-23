@@ -148,6 +148,23 @@ public class HomeActivity extends AppCompatActivity
         });
 
 
+        Button mycontestsbtn = findViewById(R.id.btn_mymatches);
+        mycontestsbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(UserInfo.logined)
+                {
+                    Intent intent = new Intent(HomeActivity.this,MyMatchesActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    Toast.makeText(HomeActivity.this,"You need to login first!",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
 
 
     }
@@ -194,6 +211,7 @@ public class HomeActivity extends AppCompatActivity
             if(UserInfo.logined)
             {
                 Toast.makeText(HomeActivity.this,"You are already Logged In",Toast.LENGTH_LONG).show();
+                return false ;
             }
             Intent intent = new Intent(this,LoginActivity.class);
             startActivity(intent);
@@ -232,6 +250,7 @@ public class HomeActivity extends AppCompatActivity
             if(UserInfo.logined)
             {
                 Toast.makeText(HomeActivity.this,"You are logged In, logout to register a new account",Toast.LENGTH_LONG).show();
+                return false;
             }
             Intent intent = new Intent(this,RegisterActivity.class);
             startActivity(intent);

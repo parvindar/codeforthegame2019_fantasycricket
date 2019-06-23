@@ -195,7 +195,6 @@ public class CreateTeamActivity extends AppCompatActivity {
                                     }
                                 });
                                 db.collection("Users").document(UserInfo.username).update("Cash",UserInfo.cash);
-                                db.collection("Users").document(UserInfo.username).update("xp",UserInfo.xp);
 
                                 b.dismiss();
                                 CreateTeamActivity.this.finish();
