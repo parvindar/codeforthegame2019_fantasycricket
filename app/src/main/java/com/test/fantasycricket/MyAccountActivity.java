@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import static com.test.fantasycricket.Constants.dec;
+
 public class MyAccountActivity extends AppCompatActivity {
 
     @Override
@@ -26,7 +28,7 @@ public class MyAccountActivity extends AppCompatActivity {
         email.setText(UserInfo.email);
         winnings.setText(String.valueOf(UserInfo.winnings));
         xp.setText(String.valueOf(UserInfo.xp));
-        cashtv.setText(UserInfo.INR+String.valueOf(UserInfo.cash));
+        cashtv.setText(UserInfo.INR+dec.format(UserInfo.cash));
 
         Button addcashbtn =findViewById(R.id.btn_addcash);
         addcashbtn.setOnClickListener(new View.OnClickListener() {

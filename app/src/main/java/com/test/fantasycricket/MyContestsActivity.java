@@ -31,6 +31,7 @@ import java.util.Map;
 
 public class MyContestsActivity extends AppCompatActivity {
     ArrayList<Contest> contestArrayList = new ArrayList<>();
+    Map<String,Object> contestidobject;
     ArrayList<String> mycontestsarraylist;
     ListView lv;
     FirebaseFirestore db ;
@@ -56,13 +57,55 @@ public class MyContestsActivity extends AppCompatActivity {
         db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Map<String,Object> contestidobject = new HashMap<>();
 
                 if(documentSnapshot.exists())
                 {
-                    Map<String,Object> data = documentSnapshot.getData();
+                    contestidobject = new HashMap<>();
+                    contestidobject = documentSnapshot.getData();
+
                     mycontestsarraylist = new ArrayList<>();
-                    mycontestsarraylist=(ArrayList<String>) data.get("contests");
+                    mycontestsarraylist=(ArrayList<String>) contestidobject.get("contests");
+
+
+
+
+                    db.collection("Matches").document(matchid).collection("Contests").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            contestArrayList.clear();
+                            for( DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments())
+                            {
+                                String prize,price,spotsfilled,totalspots;
+                                String contestname,id;
+                                boolean contestfinished;
+                                id= documentSnapshot.getId();
+                                if(!mycontestsarraylist.contains(id))
+                                {
+                                    continue;
+                                }
+                                prize = documentSnapshot.getData().get("TotalPrize").toString();
+                                price = documentSnapshot.getData().get("Price").toString();
+                                spotsfilled = (documentSnapshot.getData().get("SpotsFilled").toString());
+                                totalspots = (documentSnapshot.getData().get("TotalSpots").toString());
+                                contestfinished=(boolean)documentSnapshot.getData().get("Finished");
+
+                                contestname = documentSnapshot.getString("ContestName");
+                                Contest currcontest = new Contest(id,Double.valueOf(prize),Double.valueOf(price),Integer.valueOf(spotsfilled),Integer.valueOf(totalspots));
+                                currcontest.contestname = contestname;
+                                currcontest.finished=contestfinished;
+                                contestArrayList.add(currcontest);
+
+                            }
+
+                            MyContestListAdaptor contestListAdaptor = new MyContestListAdaptor(MyContestsActivity.this,R.layout.contest,contestArrayList);
+                            lv.setAdapter(contestListAdaptor);
+
+                        }
+                    });
+
+
+
+
                 }
                 else
                 {
@@ -72,39 +115,6 @@ public class MyContestsActivity extends AppCompatActivity {
         });
 
 
-        db.collection("Matches").document(matchid).collection("Contests").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                contestArrayList.clear();
-                for( DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments())
-                {
-                    String prize,price,spotsfilled,totalspots;
-                    String contestname,id;
-                    boolean contestfinished;
-                    id= documentSnapshot.getId();
-                    if(!mycontestsarraylist.contains(id))
-                    {
-                        continue;
-                    }
-                    prize = documentSnapshot.getData().get("TotalPrize").toString();
-                    price = documentSnapshot.getData().get("Price").toString();
-                    spotsfilled = (documentSnapshot.getData().get("SpotsFilled").toString());
-                    totalspots = (documentSnapshot.getData().get("TotalSpots").toString());
-                    contestfinished=(boolean)documentSnapshot.getData().get("Finished");
-
-                    contestname = documentSnapshot.getString("ContestName");
-                    Contest currcontest = new Contest(id,Double.valueOf(prize),Double.valueOf(price),Integer.valueOf(spotsfilled),Integer.valueOf(totalspots));
-                    currcontest.contestname = contestname;
-                    currcontest.finished=contestfinished;
-                    contestArrayList.add(currcontest);
-
-                }
-
-                MyContestListAdaptor contestListAdaptor = new MyContestListAdaptor(MyContestsActivity.this,R.layout.contest,contestArrayList);
-                lv.setAdapter(contestListAdaptor);
-
-            }
-        });
 
 
 
@@ -119,7 +129,7 @@ public class MyContestsActivity extends AppCompatActivity {
         public String id;
         public boolean finished=false;
 
-        public Contest(String id,Double prize, Double price, Integer spotsfilled, Integer totalspots) {
+        Contest(String id,Double prize, Double price, Integer spotsfilled, Integer totalspots) {
             this.prize = prize;
             this.price = price;
             this.spotsfilled = spotsfilled;
@@ -155,7 +165,7 @@ public class MyContestsActivity extends AppCompatActivity {
                 Integer spotsfilled = getItem(position).spotsfilled;
                 Integer totalspots = getItem(position).totalspots;
 
-                LayoutInflater inflater = LayoutInflater.from(mContext);
+                final LayoutInflater inflater = LayoutInflater.from(mContext);
                 convertView = inflater.inflate(mResource, parent, false);
 
                 TextView prizetv = convertView.findViewById(R.id.tv_prize);
@@ -199,7 +209,16 @@ public class MyContestsActivity extends AppCompatActivity {
                             }
                             else
                             {
-                                Toast.makeText(MyContestsActivity.this,"Contest is not completed yet.",Toast.LENGTH_LONG).show();
+
+                                Intent intent = new Intent(MyContestsActivity.this,CurrentPointsActivity.class);
+                                intent.putExtra("team1",team1);
+                                intent.putExtra("team2",team2);
+                                intent.putExtra("matchid",matchid);
+                                Map<String,Object> contestdetail = (Map<String,Object>)contestidobject.get(getItem(position).id);
+                                intent.putExtra("ParticipantID",contestdetail.get("ParticipantID").toString());
+                                intent.putExtra("contestid",getItem(position).id);
+
+                                startActivity(intent);
                             }
 
                         }

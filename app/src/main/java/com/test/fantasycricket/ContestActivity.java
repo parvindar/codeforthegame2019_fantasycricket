@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.test.fantasycricket.Constants.dec;
+
 public class ContestActivity extends AppCompatActivity {
     ListView contestlist;
     static String matchid;
@@ -48,7 +50,6 @@ public class ContestActivity extends AppCompatActivity {
     String contestname,totalprize,totalspots,price;
     Double gain,gainfactor=20.0;
     FirebaseFirestore db;
-    public static DecimalFormat dec = new DecimalFormat("#0.00");
 
 
     @Override
@@ -153,7 +154,7 @@ public class ContestActivity extends AppCompatActivity {
                         contest.put("TotalPrize",totalprize);
                         contest.put("TotalSpots",totalspots);
                         contest.put("Price",price);
-                        contest.put("SpotsFilled","0");
+                        contest.put("SpotsFilled",0);
                         contest.put("Finished",false);
                         db.collection("Matches").document(matchid).collection("Contests").add(contest).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
@@ -385,15 +386,42 @@ public class ContestActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
 
-                                    Intent intent = new Intent(ContestActivity.this,CreateTeamActivity.class);
-                                    intent.putExtra("team1",team1);
-                                    intent.putExtra("team2",team2);
-                                    intent.putExtra("price",getItem(position).price);
-                                    CreateTeamActivity.contestid=getItem(position).id;
-                                    CreateTeamActivity.matchid=matchid;
-                                    startActivity(intent);
+                                    db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
 
-                                    b.dismiss();
+                                            Intent intent;
+                                            intent = new Intent(ContestActivity.this,CreateTeamActivity.class);
+
+                                            if(documentSnapshot.exists())
+                                            {
+                                                Map<String,Object> contestobject = documentSnapshot.getData();
+                                                if(contestobject.keySet().contains(getItem(position).id))
+                                                {
+                                                    Toast.makeText(ContestActivity.this,"You have already participated in this contest",Toast.LENGTH_LONG).show();
+                                                    intent = new Intent(ContestActivity.this,CurrentPointsActivity.class);
+                                                    Map<String,Object> contestdetail = (Map<String,Object>)contestobject.get(getItem(position).id);
+                                                    intent.putExtra("ParticipantID",contestdetail.get("ParticipantID").toString());
+                                                }
+
+                                            }
+
+                                            intent.putExtra("team1",team1);
+                                            intent.putExtra("team2",team2);
+                                            intent.putExtra("matchid",matchid);
+                                            intent.putExtra("contestid",getItem(position).id);
+                                            intent.putExtra("price",getItem(position).price);
+                                            CreateTeamActivity.contestid=getItem(position).id;
+                                            CreateTeamActivity.matchid=matchid;
+                                            startActivity(intent);
+
+                                            b.dismiss();
+
+
+                                        }
+                                    });
+
+
 
                                 }
                             });

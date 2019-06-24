@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MyContestsActivity"></activity>
+        <activity android:name=".CurrentPointsActivity"></activity>
+        <activity android:name=".MyContestsActivity" />
         <activity android:name=".MyMatchesActivity" />
         <activity android:name=".AdminPanel" />
         <activity android:name=".MyAccountActivity" />

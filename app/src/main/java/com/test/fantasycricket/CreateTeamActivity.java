@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.grpc.internal.JsonParser;
+
+import static com.test.fantasycricket.Constants.dec;
 
 public class CreateTeamActivity extends AppCompatActivity {
 
@@ -99,6 +102,7 @@ public class CreateTeamActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
                 if(myteam.size()!=11)
                 {
                     Toast.makeText(CreateTeamActivity.this,"Select 11 players!",Toast.LENGTH_LONG).show();
@@ -126,7 +130,8 @@ public class CreateTeamActivity extends AppCompatActivity {
                         TextView dialogcashtv = dialogView.findViewById(R.id.tv_pay_cash);
                         dialogteam1tv.setText(team1);
                         dialogteam2tv.setText(team2);
-                        dialogpricetv.setText(Constants.INR+String.valueOf(price));
+
+                        dialogpricetv.setText(Constants.INR+dec.format(price));
                         dialogcashtv.setText(Constants.INR+String.valueOf(UserInfo.cash));
 
                         Button dialogcancelbtn = dialogView.findViewById(R.id.btn_cancel);
@@ -161,15 +166,30 @@ public class CreateTeamActivity extends AppCompatActivity {
 
 
                                     teamobject.put("Team",teamlist_maplist);
+                                    String participantID = db.collection("Matches").document().getId();
+                                    participantID = participantID.substring(0,10);
+                                    participantID=UserInfo.username + String.valueOf(UserInfo.xp) + participantID;
 
-                                    db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(UserInfo.username+String.valueOf(UserInfo.xp)+String.valueOf(UserInfo.cash)).set(teamobject).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(participantID).set(teamobject).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(CreateTeamActivity.this,"Registered Successfully",Toast.LENGTH_LONG).show();
                                         }
                                     });
 
+                                    db.collection("Matches").document(matchid).collection("Contests").document(contestid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
 
+                                            Long spotsfilled = (Long) documentSnapshot.get("SpotsFilled");
+                                            spotsfilled++;
+                                            db.collection("Matches").document(matchid).collection("Contests").document(contestid).update("SpotsFilled",spotsfilled);
+
+                                        }
+                                    });
+
+                                // Adding contest details to user's data
+                                final String finalParticipantID = participantID;
                                 db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -181,19 +201,32 @@ public class CreateTeamActivity extends AppCompatActivity {
                                             ArrayList<String> contestsarraylist = new ArrayList<>();
                                             contestsarraylist=(ArrayList<String>) data.get("contests");
                                             contestsarraylist.add(contestid);
+
+                                            Map<String,Object> mycontestdetail = new HashMap<>();
+                                            mycontestdetail.put("ParticipantID", finalParticipantID);
+                                            mycontestdetail.put("TotalPoints",0);
+
                                             contestidobject.put("contests",contestsarraylist);
+                                            contestidobject.put(contestid,mycontestdetail);
                                             db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).set(contestidobject);
                                         }
                                         else
                                         {
                                             ArrayList<String> contestsarraylist = new ArrayList<>();
                                             contestsarraylist.add(contestid);
+                                            Map<String,Object> mycontestdetail = new HashMap<>();
+                                            mycontestdetail.put("ParticipantID", finalParticipantID);
+                                            mycontestdetail.put("TotalPoints",0);
+
                                             contestidobject.put("contests",contestsarraylist);
+                                            contestidobject.put(contestid,mycontestdetail);
 
                                             db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).set(contestidobject);
                                         }
                                     }
                                 });
+
+                                // updating user's cash in wallet.
                                 db.collection("Users").document(UserInfo.username).update("Cash",UserInfo.cash);
 
                                 b.dismiss();
@@ -289,6 +322,7 @@ public class CreateTeamActivity extends AppCompatActivity {
             team1list.setAdapter(team1listadaptor);
             team2list.setAdapter(team2listadaptor);
 
+
         }
 
 
@@ -296,7 +330,7 @@ public class CreateTeamActivity extends AppCompatActivity {
 
 
 
-    class Player {
+    private class Player {
         String name;
         String pid;
         public Double points=0.0;
@@ -316,7 +350,7 @@ public class CreateTeamActivity extends AppCompatActivity {
 
 
 
-    public class PlayerListAdaptor extends ArrayAdapter<Player> {
+    private class PlayerListAdaptor extends ArrayAdapter<Player> {
         private static final String TAG = "PlayerListAdaptor";
         private Context mContext;
         private int mResource;
@@ -346,7 +380,7 @@ public class CreateTeamActivity extends AppCompatActivity {
                 final LinearLayout ll = convertView.findViewById(R.id.ll_player_element);
                 if(myteam.contains(getItem(position)))
                 {
-                    ll.setBackgroundColor(Color.parseColor("#73c2fb"));
+                    ll.setBackgroundColor(Color.parseColor("#8073c2fb"));
                 }
                 else
                 {
@@ -435,6 +469,26 @@ public class CreateTeamActivity extends AppCompatActivity {
 
 
 
+    }
+
+
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 
 

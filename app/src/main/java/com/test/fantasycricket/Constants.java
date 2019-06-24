@@ -1,8 +1,12 @@
 package com.test.fantasycricket;
 
+import java.text.DecimalFormat;
+
 public class Constants {
 
     public static String INR = "\u20B9 ";
+    public static DecimalFormat dec = new DecimalFormat("#0.00");
+
 
     public static String API_KEY="VdUTmLVaoVNmU4V8wnQR6LBnezo2";
 
