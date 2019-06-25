@@ -1,5 +1,7 @@
 package com.test.fantasycricket;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,12 +17,13 @@ public class Calculate {
             "6s": "0",       // -----------------> SIXes hit
             "SR": "53.84"    // -----------------> Strike Rate / 100 Balls*/
         double runs,minutes_played,balls_played,fours,sixes,strike_rate;
-        runs=Double.parseDouble(player.get("R").toString());
-        minutes_played=Double.parseDouble(player.get("M").toString());
-        balls_played=Double.parseDouble(player.get("B").toString());
-        fours=Double.parseDouble(player.get("4s").toString());
-        sixes=Double.parseDouble(player.get("6s").toString());
-        strike_rate=Double.parseDouble(player.get("SR").toString());
+        runs=(double) ((Integer) player.get("R")).intValue();
+        Log.d("points"," runs "+String.valueOf(runs));
+//        minutes_played=Double.parseDouble(player.get("M").toString());
+        balls_played=(double)((Integer)player.get("B")).intValue();
+        fours=(double)((Integer)player.get("4s")).intValue();
+        sixes=(double)((Integer)player.get("6s")).intValue();
+        strike_rate=(double)((Integer)player.get("SR")).intValue();
 
         point+=(runs*0.5);
         point+=(fours*0.5);
@@ -52,22 +55,22 @@ public class Calculate {
     public static double points_bowling(JSONObject player) throws JSONException {
 /*
             "O": "11",                  // -----------------> Overs bowled (decimal value)
-            "M": "1",                  // -----------------> Maidens bowled
+            "M": "1",                   // -----------------> Maidens bowled
             "R": "42",                  // -----------------> Runs conceded
-            "W": "1",                  // -----------------> Wickets taken
-            "Econ": "3.81",                  // -----------------> Economy of runs per 6 balls
+            "W": "1",                   // -----------------> Wickets taken
+            "Econ": "3.81",             // -----------------> Economy of runs per 6 balls
             "0s": "48"                  // -----------------> Dot balls bowled*/
 
         double point=0;
 
         double overs_bowled,maidens,runs_conceded,wickets_taken,econ,dot_balls;
 
-        overs_bowled =Double.parseDouble(player.get("O").toString());
-        maidens=Double.parseDouble(player.get("M").toString());
-        runs_conceded=Double.parseDouble(player.get("R").toString());
-        wickets_taken=Double.parseDouble(player.get("W").toString());
-        econ=Double.parseDouble(player.get("Econ").toString());
-        dot_balls=Double.parseDouble(player.get("0s").toString());
+        overs_bowled =Double.parseDouble((String)player.get("O"));
+        maidens=Double.parseDouble((String)player.get("M"));
+        runs_conceded=Double.parseDouble((String)player.get("R"));
+        wickets_taken=Double.parseDouble((String)player.get("W"));
+        econ=Double.parseDouble((String)player.get("Econ"));
+        dot_balls=(double)((Integer)player.get("0s")).intValue();
 
         point+=(wickets_taken)*12;
         point+=((int)wickets_taken/4)*2;
@@ -121,10 +124,10 @@ public class Calculate {
     */
             double catchball,lbw,stumped,bowled;
 
-            catchball=Double.parseDouble(player.get("catch").toString());
-            lbw=Double.parseDouble(player.get("lbw").toString());
-            stumped=Double.parseDouble(player.get("stumped").toString());
-            bowled=Double.parseDouble(player.get("bowled").toString());
+            catchball=(double)((Integer)player.get("catch")).intValue();
+            lbw=(double)((Integer)player.get("lbw")).intValue();
+            stumped=(double)((Integer)player.get("stumped")).intValue();
+            bowled=(double)((Integer)player.get("bowled")).intValue();
 
 
             point+=catchball*4;

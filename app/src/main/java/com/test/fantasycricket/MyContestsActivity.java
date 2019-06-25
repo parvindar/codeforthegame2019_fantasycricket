@@ -36,6 +36,7 @@ public class MyContestsActivity extends AppCompatActivity {
     ListView lv;
     FirebaseFirestore db ;
     String team1,team2,matchid;
+    boolean started;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +51,7 @@ public class MyContestsActivity extends AppCompatActivity {
         team1=getIntent().getStringExtra("team1");
         team2=getIntent().getStringExtra("team2");
         matchid=getIntent().getStringExtra("matchid");
+        started = getIntent().getBooleanExtra("started",false);
 
         team1tv.setText(team1);
         team2tv.setText(team2);
@@ -214,6 +216,11 @@ public class MyContestsActivity extends AppCompatActivity {
                                 intent.putExtra("team1",team1);
                                 intent.putExtra("team2",team2);
                                 intent.putExtra("matchid",matchid);
+                                intent.putExtra("started",started);
+                                intent.putExtra("contestname",getItem(position).contestname);
+                                intent.putExtra("totalspots",getItem(position).totalspots);
+
+
                                 Map<String,Object> contestdetail = (Map<String,Object>)contestidobject.get(getItem(position).id);
                                 intent.putExtra("ParticipantID",contestdetail.get("ParticipantID").toString());
                                 intent.putExtra("contestid",getItem(position).id);

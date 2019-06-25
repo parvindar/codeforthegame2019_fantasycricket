@@ -1,5 +1,6 @@
 package com.test.fantasycricket;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -36,6 +37,7 @@ import org.json.JSONStringer;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,12 +67,18 @@ public class CreateTeamActivity extends AppCompatActivity {
     Integer player_selected_num=0;
     static String matchid;
     static String contestid;
+
+    public static Activity fa;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_team);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        fa= this;
+
         myteam = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
 
@@ -109,140 +117,17 @@ public class CreateTeamActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    if(!UserInfo.logined)
-                    {
-                        Toast.makeText(CreateTeamActivity.this,"You need to login to register in contest.",Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    if(price<UserInfo.cash){
 
-
-                        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CreateTeamActivity.this);
-                        LayoutInflater inflater = getLayoutInflater();
-                        final View dialogView = inflater.inflate(R.layout.wallet_payment_layout, null);
-                        dialogBuilder.setView(dialogView);
-                        final AlertDialog b = dialogBuilder.create();
-                        b.show();
-
-                        TextView dialogteam1tv = dialogView.findViewById(R.id.tv_team1);
-                        TextView dialogteam2tv = dialogView.findViewById(R.id.tv_team2);
-                        TextView dialogpricetv = dialogView.findViewById(R.id.tv_pay_price);
-                        TextView dialogcashtv = dialogView.findViewById(R.id.tv_pay_cash);
-                        dialogteam1tv.setText(team1);
-                        dialogteam2tv.setText(team2);
-
-                        dialogpricetv.setText(Constants.INR+dec.format(price));
-                        dialogcashtv.setText(Constants.INR+String.valueOf(UserInfo.cash));
-
-                        Button dialogcancelbtn = dialogView.findViewById(R.id.btn_cancel);
-                        Button dialogsubmitbtn = dialogView.findViewById(R.id.btn_pay_submit);
-
-                        dialogcancelbtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                b.dismiss();
-                            }
-                        });
-
-                        dialogsubmitbtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                                UserInfo.cash -= price;
-                                Map<String, Object> teamobject= new HashMap<>();
-                                Map<String,Object> player =new HashMap<>();
-                                ArrayList<Map<String,Object>> teamlist_maplist = new ArrayList<>();
-                                for(Player p : myteam)
-                                {
-                                    player= new HashMap<>();
-                                    player.put("name",p.name);
-                                    player.put("credits",p.credits);
-                                    player.put("pid",p.pid);
-                                    player.put("points",p.points);
-                                    player.put("team",p.team);
-                                    teamlist_maplist.add(player);
-
-                                }
-
-
-                                    teamobject.put("Team",teamlist_maplist);
-                                    String participantID = db.collection("Matches").document().getId();
-                                    participantID = participantID.substring(0,10);
-                                    participantID=UserInfo.username + String.valueOf(UserInfo.xp) + participantID;
-
-                                    db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(participantID).set(teamobject).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Toast.makeText(CreateTeamActivity.this,"Registered Successfully",Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-
-                                    db.collection("Matches").document(matchid).collection("Contests").document(contestid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                                            Long spotsfilled = (Long) documentSnapshot.get("SpotsFilled");
-                                            spotsfilled++;
-                                            db.collection("Matches").document(matchid).collection("Contests").document(contestid).update("SpotsFilled",spotsfilled);
-
-                                        }
-                                    });
-
-                                // Adding contest details to user's data
-                                final String finalParticipantID = participantID;
-                                db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        Map<String,Object> contestidobject = new HashMap<>();
-
-                                        if(documentSnapshot.exists())
-                                        {
-                                            Map<String,Object> data = documentSnapshot.getData();
-                                            ArrayList<String> contestsarraylist = new ArrayList<>();
-                                            contestsarraylist=(ArrayList<String>) data.get("contests");
-                                            contestsarraylist.add(contestid);
-
-                                            Map<String,Object> mycontestdetail = new HashMap<>();
-                                            mycontestdetail.put("ParticipantID", finalParticipantID);
-                                            mycontestdetail.put("TotalPoints",0);
-
-                                            contestidobject.put("contests",contestsarraylist);
-                                            contestidobject.put(contestid,mycontestdetail);
-                                            db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).set(contestidobject);
-                                        }
-                                        else
-                                        {
-                                            ArrayList<String> contestsarraylist = new ArrayList<>();
-                                            contestsarraylist.add(contestid);
-                                            Map<String,Object> mycontestdetail = new HashMap<>();
-                                            mycontestdetail.put("ParticipantID", finalParticipantID);
-                                            mycontestdetail.put("TotalPoints",0);
-
-                                            contestidobject.put("contests",contestsarraylist);
-                                            contestidobject.put(contestid,mycontestdetail);
-
-                                            db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).set(contestidobject);
-                                        }
-                                    }
-                                });
-
-                                // updating user's cash in wallet.
-                                db.collection("Users").document(UserInfo.username).update("Cash",UserInfo.cash);
-
-                                b.dismiss();
-                                CreateTeamActivity.this.finish();
-                            }
-                        });
-
-
-                    }
-                    else
-                    {
-                        Toast.makeText(CreateTeamActivity.this,"You don't have enough cash in your wallet!",Toast.LENGTH_LONG).show();
-
-                    }
-
-                    //db.collection("Matches").document(matchid).collection("Contests")
+                    //---------------------------------------------------------------===============
+                    Intent intent = new Intent(CreateTeamActivity.this, ChooseCaptainActivity.class);
+                    ChooseCaptainActivity.myteamlist = myteam;
+                    intent.putExtra("team1",team1);
+                    intent.putExtra("team2",team2);
+                    intent.putExtra("matchid",matchid);
+                    intent.putExtra("contestid",contestid);
+                    intent.putExtra("price",price);
+                    startActivity(intent);
+                    //-------------------------------------------------------------=============
 
                 }
             }
@@ -330,7 +215,7 @@ public class CreateTeamActivity extends AppCompatActivity {
 
 
 
-    private class Player {
+    public class Player implements Serializable {
         String name;
         String pid;
         public Double points=0.0;
@@ -345,6 +230,48 @@ public class CreateTeamActivity extends AppCompatActivity {
             this.name = name;
             this.pid = pid;
             this.credits = credits;
+            this.points=0.0;
+            this.team="";
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getPid() {
+            return pid;
+        }
+
+        public Double getPoints() {
+            return points;
+        }
+
+        public Double getCredits() {
+            return credits;
+        }
+
+        public String getTeam() {
+            return team;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setPid(String pid) {
+            this.pid = pid;
+        }
+
+        public void setPoints(Double points) {
+            this.points = points;
+        }
+
+        public void setCredits(Double credits) {
+            this.credits = credits;
+        }
+
+        public void setTeam(String team) {
+            this.team = team;
         }
     }
 

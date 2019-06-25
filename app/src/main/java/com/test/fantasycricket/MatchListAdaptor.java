@@ -94,6 +94,7 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
                             intent.putExtra("team1",team1);
                             intent.putExtra("team2",team2);
                             intent.putExtra("matchid",getItem(position).uniqueid);
+                            intent.putExtra("started",getItem(position).started);
                             ContestActivity.matchid = getItem(position).uniqueid;
                             mContext.startActivity(intent);
                         }

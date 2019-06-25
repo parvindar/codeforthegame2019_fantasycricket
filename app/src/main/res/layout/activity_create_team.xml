@@ -67,9 +67,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:background="@color/design_default_color_primary"
             android:text="Create Your Team"
             android:textAlignment="center"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textStyle="bold" />
 
         <TextView
@@ -120,7 +121,7 @@
                 android:layout_weight="1"
                 android:text="0 /11"
                 android:textAlignment="center"
-                android:textColor="@android:color/black"
+                android:textColor="@color/design_default_color_primary_dark"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -132,7 +133,7 @@
                 android:layout_weight="1"
                 android:text="100"
                 android:textAlignment="center"
-                android:textColor="@android:color/black"
+                android:textColor="@color/design_default_color_primary_dark"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>

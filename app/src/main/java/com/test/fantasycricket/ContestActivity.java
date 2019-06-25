@@ -48,6 +48,7 @@ public class ContestActivity extends AppCompatActivity {
     String team1,team2;
     ArrayList<Contest> contestArrayList;
     String contestname,totalprize,totalspots,price;
+    boolean started;
     Double gain,gainfactor=20.0;
     FirebaseFirestore db;
 
@@ -69,6 +70,8 @@ public class ContestActivity extends AppCompatActivity {
         TextView team2tv = findViewById(R.id.tv_team2);
         team1=getIntent().getStringExtra("team1");
         team2=getIntent().getStringExtra("team2");
+        started = getIntent().getBooleanExtra("started",false);
+
 
         team1tv.setText(team1);
         team2tv.setText(team2);
@@ -150,7 +153,7 @@ public class ContestActivity extends AppCompatActivity {
                         }
 
                         Map<String,Object> contest = new HashMap<>();
-                        contest.put("ContestName",contestname);
+                        contest.put("ContestName","Private: "+contestname);
                         contest.put("TotalPrize",totalprize);
                         contest.put("TotalSpots",totalspots);
                         contest.put("Price",price);
@@ -402,6 +405,8 @@ public class ContestActivity extends AppCompatActivity {
                                                     intent = new Intent(ContestActivity.this,CurrentPointsActivity.class);
                                                     Map<String,Object> contestdetail = (Map<String,Object>)contestobject.get(getItem(position).id);
                                                     intent.putExtra("ParticipantID",contestdetail.get("ParticipantID").toString());
+                                                    intent.putExtra("started",started);
+
                                                 }
 
                                             }
@@ -411,6 +416,9 @@ public class ContestActivity extends AppCompatActivity {
                                             intent.putExtra("matchid",matchid);
                                             intent.putExtra("contestid",getItem(position).id);
                                             intent.putExtra("price",getItem(position).price);
+                                            intent.putExtra("contestname",getItem(position).contestname);
+                                            intent.putExtra("totalspots",getItem(position).totalspots);
+
                                             CreateTeamActivity.contestid=getItem(position).id;
                                             CreateTeamActivity.matchid=matchid;
                                             startActivity(intent);
