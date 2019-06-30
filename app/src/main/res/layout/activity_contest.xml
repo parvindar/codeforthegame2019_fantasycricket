@@ -59,12 +59,23 @@
             android:textColor="@android:color/black"
             android:textStyle="bold" />
 
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/activity_main_swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
         <ListView
             android:id="@+id/lv_contests"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="#F6F6F6"
-            android:dividerHeight="10dp" />
+            android:dividerHeight="10dp"
+            android:drawSelectorOnTop="true" />
+
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </LinearLayout>
 

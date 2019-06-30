@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +42,8 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
             String timeleft = getItem(position).timeleft;
             Boolean started = getItem(position).started;
             String type = getItem(position).matchtype;
+            String winner_team = getItem(position).winner_team;
+            String toss_winner_team = getItem(position).toss_winner;
 
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(mResource, parent, false);
@@ -49,15 +53,32 @@ public class MatchListAdaptor extends ArrayAdapter<Match> {
             TextView timelefttv = convertView.findViewById(R.id.tv_timeleft);
             TextView matchstatus = convertView.findViewById(R.id.tv_matchstatus);
             TextView matchtype = convertView.findViewById(R.id.tv_matchtype);
+            TextView team1fulltv = convertView.findViewById(R.id.tv_team1_full);
+            TextView team2fulltv = convertView.findViewById(R.id.tv_team2_full);
             LinearLayout linearLayout = convertView.findViewById(R.id.ll_matchelement_layout);
 
-            team1tv.setText(team1);
-            team2tv.setText(team2);
+            team1tv.setText(Constants.getTeamShortName(team1));
+            team2tv.setText(Constants.getTeamShortName(team2));
+            team1fulltv.setText(team1);
+            team2fulltv.setText(team2);
             timelefttv.setText(timeleft);
             matchtype.setText(type);
             if(started)
             {
                 matchstatus.setText("Started");
+                if(!toss_winner_team.isEmpty())
+                {
+                    timelefttv.setText(Constants.getTeamShortName(toss_winner_team)+"\nwon the toss.");
+                    timelefttv.setTextColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
+                }
+                if(!winner_team.isEmpty() && (winner_team.equals(team1)|| winner_team.equals(team2)))
+                {
+                    timelefttv.setText(Constants.getTeamShortName(winner_team)+"\nwon the match");
+            //        timelefttv.setTextColor(0xFFCA4300);
+                    timelefttv.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                    matchstatus.setText("Finished");
+                    matchstatus.setTextColor(0xFF00A70B);
+                }
             }
             else
             {

@@ -1,6 +1,6 @@
 package com.test.fantasycricket;
 
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,27 +32,28 @@ public class RegisterActivity extends AppCompatActivity {
 
     String name, email, username, password, confirmPassword;
     Boolean username_status = false;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_register);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        FirebaseApp.initializeApp(getApplicationContext());
+        progressDialog = new ProgressDialog(RegisterActivity.this);
+        FirebaseApp.initializeApp(RegisterActivity.this);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         super.onCreate(savedInstanceState);
         TextView text_reg = (TextView) findViewById(R.id.tv_loginText);
         text_reg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         });
         final EditText nameText = findViewById(R.id.et_name);
         final EditText emailText = findViewById(R.id.et_email);
         final EditText usernameText = findViewById(R.id.et_username);
-        final EditText passwordText = findViewById(R.id.et_password);
+        final EditText passwordText = findViewById(R.id.et_oldpassword);
         final EditText confirmPasswordText = findViewById(R.id.et_confirm_password);
         Button registerButton = findViewById(R.id.btn_register);
 
@@ -192,31 +192,35 @@ public class RegisterActivity extends AppCompatActivity {
                 password = passwordText.getText().toString();
                 confirmPassword = confirmPasswordText.getText().toString();
                 if(name.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()){
-                    Toast.makeText(getApplicationContext(), "please fill all the fields !", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "please fill all the fields !", Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(!password.equals(confirmPassword)) {
-                    Toast.makeText(getApplicationContext(), "Passwords do not match !", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "Passwords do not match !", Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(password.length()<6) {
-                    Toast.makeText(getApplicationContext(), "Password is too short ! (At least 6 characters)", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "Password is too short ! (At least 6 characters)", Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(!username_status){
-                    Toast.makeText(getApplicationContext(), "Username already exists !", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "Username already exists !", Toast.LENGTH_LONG).show();
                     return;
                 }
 
+                progressDialog.show();
                 Map<String, Object> user = new HashMap<>();
                 user.put("Name", name);
                 user.put("Email", email);
                 user.put("Username", username);
                 user.put("Password", password);
                 user.put("UserType","user");
-                user.put("Cash",100.00);
-                user.put("Winnings",0);
-                user.put("xp",0);
+                user.put("Cash",100.00d);
+                user.put("Winnings",0.00d);
+                user.put("xp",0.00d);
+                user.put("Name_insensitive",name.toLowerCase());
+                user.put("Username_insensitive",username.toLowerCase());
+
 
                 db.collection("Users")
                         .document(username)
@@ -224,17 +228,18 @@ public class RegisterActivity extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(getApplicationContext(), "Registered Successfully !", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                                Toast.makeText(RegisterActivity.this, "Registered Successfully !", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                 startActivity(intent);
-
+                                progressDialog.dismiss();
                                 finish();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getApplicationContext(), "Check your internet connection !", Toast.LENGTH_LONG).show();
+                                Toast.makeText(RegisterActivity.this, "Check your internet connection !", Toast.LENGTH_LONG).show();
+                                progressDialog.dismiss();
                             }
                         });
             }

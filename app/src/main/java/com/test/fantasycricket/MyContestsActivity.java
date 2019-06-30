@@ -2,6 +2,7 @@ package com.test.fantasycricket;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +38,8 @@ public class MyContestsActivity extends AppCompatActivity {
     FirebaseFirestore db ;
     String team1,team2,matchid;
     boolean started;
+
+    SwipeRefreshLayout mSwipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +82,7 @@ public class MyContestsActivity extends AppCompatActivity {
                             {
                                 String prize,price,spotsfilled,totalspots;
                                 String contestname,id;
-                                boolean contestfinished;
+                                boolean contestfinished,contestawarded;
                                 id= documentSnapshot.getId();
                                 if(!mycontestsarraylist.contains(id))
                                 {
@@ -90,11 +93,19 @@ public class MyContestsActivity extends AppCompatActivity {
                                 spotsfilled = (documentSnapshot.getData().get("SpotsFilled").toString());
                                 totalspots = (documentSnapshot.getData().get("TotalSpots").toString());
                                 contestfinished=(boolean)documentSnapshot.getData().get("Finished");
+                                try{
+                                    contestawarded = (boolean) documentSnapshot.get("Awarded");
+
+                                }catch (Exception e)
+                                {
+                                    contestawarded=false;
+                                }
 
                                 contestname = documentSnapshot.getString("ContestName");
                                 Contest currcontest = new Contest(id,Double.valueOf(prize),Double.valueOf(price),Integer.valueOf(spotsfilled),Integer.valueOf(totalspots));
                                 currcontest.contestname = contestname;
                                 currcontest.finished=contestfinished;
+                                currcontest.awarded=contestawarded;
                                 contestArrayList.add(currcontest);
 
                             }
@@ -118,6 +129,79 @@ public class MyContestsActivity extends AppCompatActivity {
 
 
 
+        //  swipe to refresh ===========================================================
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        if(documentSnapshot.exists())
+                        {
+                            contestidobject = new HashMap<>();
+                            contestidobject = documentSnapshot.getData();
+
+                            mycontestsarraylist = new ArrayList<>();
+                            mycontestsarraylist=(ArrayList<String>) contestidobject.get("contests");
+
+
+                            db.collection("Matches").document(matchid).collection("Contests").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    contestArrayList.clear();
+                                    for( DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments())
+                                    {
+                                        String prize,price,spotsfilled,totalspots;
+                                        String contestname,id;
+                                        boolean contestfinished;
+                                        id= documentSnapshot.getId();
+                                        if(!mycontestsarraylist.contains(id))
+                                        {
+                                            continue;
+                                        }
+                                        prize = documentSnapshot.getData().get("TotalPrize").toString();
+                                        price = documentSnapshot.getData().get("Price").toString();
+                                        spotsfilled = (documentSnapshot.getData().get("SpotsFilled").toString());
+                                        totalspots = (documentSnapshot.getData().get("TotalSpots").toString());
+                                        contestfinished=(boolean)documentSnapshot.getData().get("Finished");
+
+                                        contestname = documentSnapshot.getString("ContestName");
+                                        Contest currcontest = new Contest(id,Double.valueOf(prize),Double.valueOf(price),Integer.valueOf(spotsfilled),Integer.valueOf(totalspots));
+                                        currcontest.contestname = contestname;
+                                        currcontest.finished=contestfinished;
+                                        contestArrayList.add(currcontest);
+
+                                    }
+
+                                    MyContestListAdaptor contestListAdaptor = new MyContestListAdaptor(MyContestsActivity.this,R.layout.contest,contestArrayList);
+                                    lv.setAdapter(contestListAdaptor);
+
+                                    mSwipeRefreshLayout.setRefreshing(false);
+
+                                }
+                            });
+
+
+
+
+                        }
+                        else
+                        {
+                            Toast.makeText(MyContestsActivity.this,"Nothing to show",Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+
+
+            }
+        });
+
+        //=========================================================================
+
+
 
 
 
@@ -130,6 +214,7 @@ public class MyContestsActivity extends AppCompatActivity {
         String contestname;
         public String id;
         public boolean finished=false;
+        public boolean awarded = false;
 
         Contest(String id,Double prize, Double price, Integer spotsfilled, Integer totalspots) {
             this.prize = prize;
@@ -177,6 +262,8 @@ public class MyContestsActivity extends AppCompatActivity {
                 ProgressBar spotsfilledpb = convertView.findViewById(R.id.pb_spotsfilled);
                 TextView contestnametv = convertView.findViewById(R.id.tv_contestname);
                 TextView entrylabeltv = convertView.findViewById(R.id.tv_entry_label);
+                TextView conteststatustv = convertView.findViewById(R.id.tv_missed);
+
 
                 entrylabeltv.setVisibility(View.INVISIBLE);
                 pricetv.setVisibility(View.INVISIBLE);
@@ -185,6 +272,24 @@ public class MyContestsActivity extends AppCompatActivity {
                 totalspotstv.setText(String.valueOf(totalspots));
                 spotslefttv.setText(String.valueOf(totalspots-spotsfilled));
                 spotsfilledpb.setProgress((100*spotsfilled)/totalspots);
+
+                if(started)
+                {
+                    conteststatustv.setText("Running");
+                    conteststatustv.setTextColor(MyContestsActivity.this.getResources().getColor(R.color.colorPrimary));
+                }
+                else {
+                    conteststatustv.setText("Starting soon");
+                    conteststatustv.setTextColor(0xFF808080);
+                }
+
+                if(getItem(position).finished)
+                {
+                    conteststatustv.setText("Finished");
+                    conteststatustv.setTextColor(0xFF00A70B);
+                }
+
+
 
                 contestnametv.setText(getItem(position).contestname);
                 if(prize==0 && !getItem(position).contestname.isEmpty())
@@ -205,12 +310,6 @@ public class MyContestsActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         if(getItem(position)!=null)
                         {
-                            if(getItem(position).finished)
-                            {
-
-                            }
-                            else
-                            {
 
                                 Intent intent = new Intent(MyContestsActivity.this,CurrentPointsActivity.class);
                                 intent.putExtra("team1",team1);
@@ -219,14 +318,16 @@ public class MyContestsActivity extends AppCompatActivity {
                                 intent.putExtra("started",started);
                                 intent.putExtra("contestname",getItem(position).contestname);
                                 intent.putExtra("totalspots",getItem(position).totalspots);
-
+                                intent.putExtra("finishedforall",getItem(position).finished);
+                                intent.putExtra("awarded",getItem(position).awarded);
 
                                 Map<String,Object> contestdetail = (Map<String,Object>)contestidobject.get(getItem(position).id);
                                 intent.putExtra("ParticipantID",contestdetail.get("ParticipantID").toString());
                                 intent.putExtra("contestid",getItem(position).id);
 
+
                                 startActivity(intent);
-                            }
+
 
                         }
 

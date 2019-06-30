@@ -71,7 +71,7 @@
             android:visibility="gone" />
 
         <EditText
-            android:id="@+id/et_password"
+            android:id="@+id/et_oldpassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
@@ -106,8 +106,8 @@
             android:hint="Confirm Password"
             android:inputType="textPassword"
             android:textAlignment="viewStart"
-            app:layout_constraintEnd_toEndOf="@+id/et_password"
-            app:layout_constraintStart_toStartOf="@+id/et_password"
+            app:layout_constraintEnd_toEndOf="@+id/et_oldpassword"
+            app:layout_constraintStart_toStartOf="@+id/et_oldpassword"
             tools:layout_editor_absoluteY="493dp" />
 
         <Button

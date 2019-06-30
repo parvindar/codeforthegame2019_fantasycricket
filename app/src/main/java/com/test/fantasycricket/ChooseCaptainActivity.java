@@ -1,6 +1,8 @@
 package com.test.fantasycricket;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -34,10 +36,12 @@ public class ChooseCaptainActivity extends AppCompatActivity {
     static ArrayList<CreateTeamActivity.Player> myteamlist;
     String captain="",vicecaptain="";
     FirebaseFirestore db;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_captain);
+
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         db = FirebaseFirestore.getInstance();
@@ -74,6 +78,7 @@ public class ChooseCaptainActivity extends AppCompatActivity {
 
                 if(!UserInfo.logined)
                 {
+                    UserInfo.instantLogin(ChooseCaptainActivity.this);
                     Toast.makeText(ChooseCaptainActivity.this,"You need to login to register in contest.",Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -124,6 +129,10 @@ public class ChooseCaptainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
 
+                            progressDialog = new ProgressDialog(ChooseCaptainActivity.this);
+                            progressDialog.setTitle("Registering in contest..");
+                            progressDialog.show();
+
                             UserInfo.cash -= price;
                             Map<String, Object> teamobject= new HashMap<>();
                             Map<String,Object> player =new HashMap<>();
@@ -151,9 +160,10 @@ public class ChooseCaptainActivity extends AppCompatActivity {
 
                             teamobject.put("Team",teamlist_maplist);
                             teamobject.put("Points",0d);
-                            String participantID = db.collection("Matches").document().getId();
-                            participantID = participantID.substring(0,10);
-                            participantID=UserInfo.username + String.valueOf(UserInfo.xp) + participantID;
+                            teamobject.put("Finished",false);
+                            String participantID = UserInfo.username;
+//                            participantID = participantID.substring(0,10);
+//                            participantID=UserInfo.username + String.valueOf(UserInfo.xp) + participantID;
 
                             db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(participantID).set(teamobject).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
@@ -208,15 +218,20 @@ public class ChooseCaptainActivity extends AppCompatActivity {
 
                                         db.collection("Users").document(UserInfo.username).collection("Matches").document(matchid).set(contestidobject);
                                     }
+                                    b.dismiss();
+
+                                    ChooseCaptainActivity.this.finish();
+                                    CreateTeamActivity.fa.finish();
+
+                                    progressDialog.dismiss();
                                 }
                             });
 
                             // updating user's cash in wallet.
                             db.collection("Users").document(UserInfo.username).update("Cash",UserInfo.cash);
 
-                            b.dismiss();
-                            ChooseCaptainActivity.this.finish();
-                            CreateTeamActivity.fa.finish();
+
+
                         }
                     });
 
@@ -315,7 +330,7 @@ public class ChooseCaptainActivity extends AppCompatActivity {
                         if(getItem(position).pid.equals(captain))
                         {
                             captain="";
-                            captain_tv.setText("Vice Captain");
+                            captain_tv.setText("Captain");
 
                         }
 

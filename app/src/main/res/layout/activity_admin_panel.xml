@@ -18,7 +18,9 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
-            android:text="Manage Users" />
+            android:background="@color/design_default_color_primary"
+            android:text="Manage Users"
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/btn_admin_changeapikey"
@@ -27,6 +29,8 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
-            android:text="Change API Key" />
+            android:background="@color/design_default_color_primary"
+            android:text="Change API Key"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

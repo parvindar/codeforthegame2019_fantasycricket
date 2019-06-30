@@ -1,0 +1,27 @@
+<html>
+    <body>
+        <style>
+            .paytm-pay-btn{
+                padding: 20px;
+                border-radius: 15px;
+                background: #4caac9;
+                box-shadow: 5px 5px 8px #4caac9;
+                color: white;
+                cursor: pointer;
+            }
+        </style>
+      
+      
+    <form method="post" action="https://securegw-stage.paytm.in/theia/processTransaction" name="paytmForm">
+        {% for param,key in param_dict_paytm.items %}
+            <input type="hidden" name="{{param}}" value="{{key}}">
+        {% endfor %}
+        <button class='paytm-pay-btn'> Pay with Paytm </button>
+    </form>
+      
+    
+    <script>
+        document.paytmForm.submit();
+    </script>
+  </body>
+</html>

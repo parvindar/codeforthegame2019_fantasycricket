@@ -138,133 +138,58 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <ScrollView
+        <android.support.design.widget.TabLayout
+            android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            app:tabGravity="fill"
+            app:tabMode="fixed" />
 
-            <LinearLayout
+        <LinearLayout
+            android:id="@+id/view_header_team1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_player_name"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:weightSum="100">
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Player Name"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tv_team1list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="8"
-                    android:text="Team 1"
-                    android:textAlignment="center"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_points"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                tools:text="Points" />
 
-                <LinearLayout
-                    android:id="@+id/view_header_team1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="10dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="8"
-                    android:orientation="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/tv_credits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Credits" />
+        </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tv_player_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Player Name"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-                    <TextView
-                        android:id="@+id/tv_points"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        tools:text="Points" />
-
-                    <TextView
-                        android:id="@+id/tv_credits"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="Credits" />
-                </LinearLayout>
-
-                <ListView
-                    android:id="@+id/lv_team1list"
-                    style="@android:style/Widget.DeviceDefault.Light.ExpandableListView"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_weight="1"
-                    android:nestedScrollingEnabled="true" />
-
-                <TextView
-                    android:id="@+id/tv_team2list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="8"
-                    android:text="Team 2"
-                    android:textAlignment="center"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/view_header_team2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="10dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="8"
-                    android:orientation="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/textviewplayername"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Player Name"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/dlksajf"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        tools:text="Points" />
-
-                    <TextView
-                        android:id="@+id/dfj"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="Credits" />
-                </LinearLayout>
-
-                <ListView
-                    android:id="@+id/lv_team2list"
-                    style="@android:style/Widget.DeviceDefault.Light.ExpandableListView"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:layout_weight="1"
-                    android:nestedScrollingEnabled="true" />
-
-            </LinearLayout>
-        </ScrollView>
 
     </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

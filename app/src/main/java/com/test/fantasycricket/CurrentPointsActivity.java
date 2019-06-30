@@ -3,7 +3,10 @@ package com.test.fantasycricket;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.icu.util.Calendar;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,7 +44,7 @@ public class CurrentPointsActivity extends AppCompatActivity {
     FirebaseFirestore db;
     String participantID;
     Double totalpoints =0.0;
-    boolean started = false;
+    boolean started = false,finishedforall=false,awarded=false;
     Map<String,Object> teamobject;
     ArrayList<Player> playerArrayList;
     String man_of_the_match;
@@ -49,6 +52,13 @@ public class CurrentPointsActivity extends AppCompatActivity {
     TextView totalpoints_tv;
     String contestname;
     Integer totalspots;
+    String captain,vicecaptain;
+    String team1,team2;
+    Long time=0l;
+
+
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    boolean contestfinished_forme=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +74,10 @@ public class CurrentPointsActivity extends AppCompatActivity {
         TextView participantid_tv = findViewById(R.id.tv_participantid);
         TextView team1_tv = findViewById(R.id.tv_team1);
         TextView team2_tv = findViewById(R.id.tv_team2);
-        TextView contestname_tv = findViewById(R.id.tv_contestname);
+        final TextView contestname_tv = findViewById(R.id.tv_contestname);
         TextView totalspots_tv = findViewById(R.id.tv_spots);
+        final TextView conteststatus_tv = findViewById(R.id.tv_conteststatus);
 
-
-        final String team1,team2;
 
         team1 = getIntent().getStringExtra("team1");
         team2 = getIntent().getStringExtra("team2");
@@ -78,6 +87,8 @@ public class CurrentPointsActivity extends AppCompatActivity {
         started = getIntent().getBooleanExtra("started",false);
         contestname = getIntent().getStringExtra("contestname");
         totalspots = getIntent().getIntExtra("totalspots",0);
+        finishedforall = getIntent().getBooleanExtra("finishedforall",false);
+        awarded = getIntent().getBooleanExtra("awarded",false);
 
         Log.d("current points","started "+started);
 
@@ -96,22 +107,84 @@ public class CurrentPointsActivity extends AppCompatActivity {
                     playerArrayList=new ArrayList<>();
                     teamobject = documentSnapshot.getData();
                     ArrayList<Map<String,Object>> playerobject = (ArrayList<Map<String,Object>>)teamobject.get("Team");
+                    try{
+                        if(teamobject.get("Finished")!=null && (boolean)teamobject.get("Finished"))
+                        {
+                            contestfinished_forme = true;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        contestfinished_forme=false;
+                        e.printStackTrace();
+                    }
+
+
+                    try {
+                        totalpoints_tv.setText(Constants.dec.format((double) teamobject.get("Points")));
+                    }
+                    catch (Exception e)
+                    {
+                        totalpoints_tv.setText(Constants.dec.format((double)((Long)teamobject.get("Points")).intValue()));
+
+                    }
 
                     for(Map<String,Object> p : playerobject)
                     {
                         Player player = new Player(p.get("name").toString(),p.get("pid").toString(),Double.parseDouble(p.get("credits").toString()));
                         player.points = Double.parseDouble(p.get("points").toString());
                         player.team = p.get("team").toString();
-                        player.type="";
+                        try{
+                            player.type=p.get("type").toString();
+                        }
+                        catch (Exception e)
+                        {
+                            player.type ="";
+                        }
+                        if(p.get("captain")!=null && (boolean)p.get("captain"))
+                        {
+                            captain = player.pid;
+                        }
+                        if(p.get("vicecaptain")!=null && (boolean)p.get("vicecaptain"))
+                        {
+                            vicecaptain = player.pid;
+                        }
 
                         playerArrayList.add(player);
                     }
+
+                    Collections.sort(playerArrayList,new Comparator<Player>()
+                    {
+                        @Override
+                        public int compare(Player o1, Player o2)
+                        {
+                            return (int)(o2.points-o1.points);
+                        }
+                    });
+
 
                     playerListAdaptor = new PlayerListAdaptor(CurrentPointsActivity.this,R.layout.player_element_curr_points,playerArrayList);
 
                     lv.setAdapter(playerListAdaptor);
 
-                    new getteamtask().execute();
+                    if(!contestfinished_forme)
+                    {
+                        new getteamtask().execute();
+                        if(started)
+                        {
+                            conteststatus_tv.setText("Contest is running");
+                        }
+                        else
+                        {
+                            conteststatus_tv.setText("Contest will start soon");
+                        }
+
+                    }
+                    else
+                    {
+                        conteststatus_tv.setText("Contest is finished");
+                    }
+
                 }
             }
         });
@@ -130,6 +203,10 @@ public class CurrentPointsActivity extends AppCompatActivity {
                 intent.putExtra("participantID",participantID);
                 intent.putExtra("contestname",contestname);
                 intent.putExtra("totalspots",totalspots);
+                intent.putExtra("started",started);
+                intent.putExtra("finished",contestfinished_forme);
+                intent.putExtra("finishedforall",finishedforall);
+                intent.putExtra("awarded",awarded);
 
 
                 startActivity(intent);
@@ -137,7 +214,117 @@ public class CurrentPointsActivity extends AppCompatActivity {
         });
 
 
-        }
+
+        //  swipe to refresh ===========================================================
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh(){
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    if((Calendar.getInstance().getTimeInMillis()-time<5000))
+                    {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        return;
+                    }
+                    else {
+                        time= Calendar.getInstance().getTimeInMillis();
+                    }
+
+
+                }
+
+
+                db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(participantID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if(documentSnapshot.exists())
+                        {
+                            playerArrayList=new ArrayList<>();
+                            teamobject = documentSnapshot.getData();
+                            ArrayList<Map<String,Object>> playerobject = (ArrayList<Map<String,Object>>)teamobject.get("Team");
+                            try {
+                                totalpoints_tv.setText(Constants.dec.format((double) teamobject.get("Points")));
+                            }
+                            catch (Exception e)
+                            {
+                                totalpoints_tv.setText(Constants.dec.format((double)((Long)teamobject.get("Points")).intValue()));
+                            }
+
+                            try{
+                                if(teamobject.get("Finished")!=null && (boolean)teamobject.get("Finished"))
+                                {
+                                    contestfinished_forme = true;
+                                }
+                            }catch (Exception e)
+                            {
+                                e.printStackTrace();
+                                contestfinished_forme=false;
+                            }
+
+                            for(Map<String,Object> p : playerobject)
+                            {
+                                Player player = new Player(p.get("name").toString(),p.get("pid").toString(),Double.parseDouble(p.get("credits").toString()));
+                                player.points = Double.parseDouble(p.get("points").toString());
+                                player.team = p.get("team").toString();
+                                player.type=p.get("type").toString();
+                                if(p.get("captain")!=null && (boolean)p.get("captain"))
+                                {
+                                    captain = player.pid;
+                                }
+                                if(p.get("vicecaptain")!=null && (boolean)p.get("vicecaptain"))
+                                {
+                                    vicecaptain = player.pid;
+                                }
+
+                                playerArrayList.add(player);
+                            }
+
+
+                            Collections.sort(playerArrayList,new Comparator<Player>()
+                            {
+                                @Override
+                                public int compare(Player o1, Player o2)
+                                {
+                                    return (int)(o2.points-o1.points);
+                                }
+                            });
+
+                            playerListAdaptor = new PlayerListAdaptor(CurrentPointsActivity.this,R.layout.player_element_curr_points,playerArrayList);
+
+                            lv.setAdapter(playerListAdaptor);
+
+                            if(!contestfinished_forme)
+                            {
+                                new getteamtask().execute();
+                                if(started)
+                                {
+                                    conteststatus_tv.setText("Contest is running");
+                                }
+                                else
+                                {
+                                    conteststatus_tv.setText("Contest will start soon");
+                                }
+
+                            }
+                            else
+                            {
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                conteststatus_tv.setText("Contest is finished");
+
+                            }
+                        }
+                    }
+                });
+
+            }
+        });
+
+        //=========================================================================
+
+
+
+    }
 
     private class Player {
         String name;
@@ -155,6 +342,7 @@ public class CurrentPointsActivity extends AppCompatActivity {
             this.name = name;
             this.pid = pid;
             this.credits = credits;
+            this.type = "";
         }
     }
 
@@ -184,12 +372,21 @@ public class CurrentPointsActivity extends AppCompatActivity {
                 TextView pointstv = convertView.findViewById(R.id.tv_points);
                 TextView playertype_tv = convertView.findViewById(R.id.tv_playertype);
                 TextView playerteam_tv = convertView.findViewById(R.id.tv_playerteam);
-
+                TextView playerstatus_tv = convertView.findViewById(R.id.tv_playerstatus);
                 playernametv.setText(getItem(position).name);
                 pointstv.setText(String.valueOf(getItem(position).points));
                 playerteam_tv.setText(getItem(position).team);
                 playertype_tv.setText(getItem(position).type);
 
+                if(getItem(position).pid.equals(captain))
+                {
+                    playerstatus_tv.setText("C");
+                }
+                if(getItem(position).pid.equals(vicecaptain))
+                {
+                    playerstatus_tv.setText("VC");
+                    playerstatus_tv.setTextColor(Color.parseColor("#FFE7410F"));
+                }
 
                 convertView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -215,24 +412,47 @@ public class CurrentPointsActivity extends AppCompatActivity {
 
 
     class getteamtask extends AsyncTask<String, Boolean, Boolean> {
+        boolean finishedforme=false;
 
         @Override
         protected Boolean doInBackground(String... params) {
             //Do Stuff that takes ages (background thread)
 
-
             if(started)
             {
-                Log.d("current points ","i am inside");
 
                 try {
 
+
                     JSONObject main_object = HomeActivity.getJSONObjectFromURL(Constants.getApiUrlFantasy(matchid));
+                    Log.d("apicall","api is called in leaderboard");
+
                     JSONObject data = main_object.getJSONObject("data");
-                    man_of_the_match = data.getString("man-of-the-match");
+                    try{
+                        man_of_the_match = data.getString("man-of-the-match");
+                    }
+                    catch (Exception e)
+                    {
+                        Log.e("error",e.toString());
+                    }
                     JSONArray batting_arr_object = data.getJSONArray("batting");
                     JSONArray bowling_arr_object = data.getJSONArray("bowling");
                     JSONArray fielding_arr_object = data.getJSONArray("fielding");
+
+                    try{
+                        if(data.keys()!=null && (data.getString("winner_team").equals(team1) || data.getString("winner_team").equals(team2)))
+                        {
+                            finishedforme=true;
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        finishedforme=false;
+
+                        Log.d("error","team winner wala error"+e.toString());
+                    }
+
 
                     for(Player player: playerArrayList)
                     {
@@ -259,8 +479,17 @@ public class CurrentPointsActivity extends AppCompatActivity {
                                     points = Calculate.points_batting(p);
                                     Log.d("points ","calculated point bat "+ String.valueOf(points));
 
+                                    if(player.pid.equals(captain))
+                                    {
+                                        points=points*(2.0);
+                                    }
+                                    if(player.pid.equals(vicecaptain))
+                                    {
+                                        points=points*(1.5);
+                                    }
+
                                     player.points += points;
-                                    if(points>30)
+                                    if(points>25d)
                                     {
                                         player.type = "Batting";
                                     }
@@ -286,6 +515,17 @@ public class CurrentPointsActivity extends AppCompatActivity {
                                 if((player.pid).equals(p.getString("pid")))
                                 {
                                     points = Calculate.points_bowling(p);
+
+                                    if(player.pid.equals(captain))
+                                    {
+                                        points=points*(2.0);
+                                    }
+                                    if(player.pid.equals(vicecaptain))
+                                    {
+                                        points=points*(1.5);
+                                    }
+
+
 
                                     player.points += points;
                                     if(player.type.equals("Batting"))
@@ -320,6 +560,17 @@ public class CurrentPointsActivity extends AppCompatActivity {
                                 {
                                     points = Calculate.points_fielding(p);
 
+
+                                    if(player.pid.equals(captain))
+                                    {
+                                        points=points*(2.0);
+                                    }
+                                    if(player.pid.equals(vicecaptain))
+                                    {
+                                        points=points*(1.5);
+                                    }
+
+
                                     player.points += points;
                                     if(Integer.parseInt(p.getString("stumped"))>0)
                                     {
@@ -329,16 +580,13 @@ public class CurrentPointsActivity extends AppCompatActivity {
                                     {
                                         player.type="Fielding";
                                     }
-
                                     break;
                                 }
                             }
-
                         }
-
                     }
 
-                    totalpoints =0d;
+                    totalpoints = 0d;
                     for(Player player : playerArrayList)
                     {
 
@@ -355,6 +603,7 @@ public class CurrentPointsActivity extends AppCompatActivity {
                             return (int)(o2.points-o1.points);
                         }
                     });
+
 
 
 
@@ -376,14 +625,54 @@ public class CurrentPointsActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean result) {
             //Call your next task (ui thread)
 
-            playerListAdaptor.notifyDataSetChanged();
+            playerListAdaptor = new PlayerListAdaptor(CurrentPointsActivity.this,R.layout.player_element_curr_points,playerArrayList);
+            lv.setAdapter(playerListAdaptor);
             totalpoints_tv.setText(Constants.dec.format(totalpoints));
+            if(mSwipeRefreshLayout.isRefreshing())
+            {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
 
-            db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(participantID).update("Points",totalpoints);
+            Log.d("calculated"," calculated, now in postexecute ");
 
+            if(started)
+            {
 
-
+                if(finishedforme)
+                {
+                    teamobject.put("Finished",true);
+                    db.collection("Users").document(UserInfo.username).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            double xp = Double.valueOf(String.valueOf(documentSnapshot.get("xp")));
+                            xp=xp+totalpoints;
+                            db.collection("Users").document(UserInfo.username).update("xp",xp);
+                        }
+                    });
                 }
+
+                teamobject.put("Points",totalpoints);
+
+                ArrayList<Map<String,Object>> playerobject = (ArrayList<Map<String,Object>>)teamobject.get("Team");
+                for (Player player : playerArrayList)
+                {
+                    for(Map<String,Object> p : playerobject)
+                    {
+                        if(p.get("pid").equals(player.pid))
+                        {
+                            p.put("points",player.points);
+                            p.put("type",player.type);
+                        }
+                    }
+                }
+
+                teamobject.put("Team",playerobject);
+
+                db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(participantID).set(teamobject);
+
+            }
+
+        }
 
 
     }

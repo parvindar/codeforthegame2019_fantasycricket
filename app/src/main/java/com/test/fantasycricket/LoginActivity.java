@@ -1,9 +1,9 @@
 package com.test.fantasycricket;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,27 +27,28 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity {
     String username, password;
     public static Button loginBtn;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_login);
-
+        super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         FirebaseApp.initializeApp(this);
+        progressDialog= new ProgressDialog(LoginActivity.this);
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        super.onCreate(savedInstanceState);
 
         TextView text_reg = (TextView) findViewById(R.id.tv_registerText);
         text_reg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
             }
         });
 
         final EditText usernameText = findViewById(R.id.et_username);
-        final EditText passwordText = findViewById(R.id.et_password);
+        final EditText passwordText = findViewById(R.id.et_oldpassword);
         loginBtn = findViewById(R.id.btn_login);
 
 
@@ -56,6 +57,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 username = usernameText.getText().toString();
                 password = passwordText.getText().toString();
+                if(username.isEmpty()||password.isEmpty())
+                {
+                    Toast.makeText(LoginActivity.this,"Enter you credentials to login",Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                progressDialog.show();
                 db.collection("Users").document(username).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -65,8 +73,8 @@ public class LoginActivity extends AppCompatActivity {
                                 Map<String, Object> user = new HashMap<>();
                                 user = document.getData();
                                 if(user.get("Password").equals(password)){
-                                    Toast.makeText(getApplicationContext(), "Welcome "+ user.get("Name"), Toast.LENGTH_LONG).show();
-                                    UserInfo.login(user.get("UserType").toString(),user.get("Username").toString(),user.get("Name").toString(),user.get("Email").toString(),Double.parseDouble(user.get("Cash").toString()),Integer.parseInt(user.get("Winnings").toString()),Integer.parseInt(user.get("xp").toString()));
+                                    Toast.makeText(LoginActivity.this, "Welcome "+ user.get("Name"), Toast.LENGTH_LONG).show();
+                                    UserInfo.login(user.get("UserType").toString(),user.get("Username").toString(),user.get("Name").toString(),user.get("Email").toString(),Double.parseDouble(user.get("Cash").toString()),Double.parseDouble(user.get("Winnings").toString()),Double.parseDouble(user.get("xp").toString()));
 
                                     SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("app",Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
@@ -76,19 +84,22 @@ public class LoginActivity extends AppCompatActivity {
                                     editor.commit();
 
 
-                                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                     startActivity(intent);
-
+                                    progressDialog.dismiss();
                                     finish();
                                 }
                                 else{
-                                    Toast.makeText(getApplicationContext(), "Incorrect username and password !", Toast.LENGTH_LONG).show();
+                                    progressDialog.dismiss();
+                                    Toast.makeText(LoginActivity.this, "Incorrect username and password !", Toast.LENGTH_LONG).show();
                                 }
 
                             } else {
-                                Toast.makeText(getApplicationContext(), "Username doesn't exist !", Toast.LENGTH_LONG).show();
+                                progressDialog.dismiss();
+                                Toast.makeText(LoginActivity.this, "Username doesn't exist !", Toast.LENGTH_LONG).show();
                             }
                         }
+                        progressDialog.dismiss();
                     }
                 });
             }

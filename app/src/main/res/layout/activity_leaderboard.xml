@@ -52,6 +52,8 @@
 
         </LinearLayout>
 
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -77,6 +79,13 @@
                 android:text="1500 Spots"
                 android:textAlignment="textEnd" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_conteststatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contest is running, Rankings are not final"
+            android:textAlignment="center" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -138,14 +147,17 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="wait .."
-                android:textColor="#474747" />
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_points"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="wait.." />
+                android:text="wait.."
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_rank"
@@ -154,12 +166,20 @@
                 android:layout_weight="2"
                 android:text="wait.."
                 android:textAlignment="textEnd"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
         </LinearLayout>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/activity_main_swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
         <ListView
             android:id="@+id/lv_leaderboardlist"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="true" />
+        </android.support.v4.widget.SwipeRefreshLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<style>
+    #a1{
+        font-size: 18px;
+        background-color: rgba(120, 120, 120, 0.8);
+        color: white;
+        padding: 2% 4% 2% 4%;
+    }
+    .outer-box{
+        margin: 1% 0;
+    }
+    .detailsEdit{
+        background-color: aliceblue;
+        padding: 4%;
+    }
+    .fields{
+        padding: 1%;
+    }
+</style>
+
+	<div class='outer-box'>
+		{% for x in users %}
+        <script>
+					$(document).ready(function(){
+						$(".x{{x.Username}}").click(function(){
+							$("#singleBox{{x.Username}}").slideToggle(500);
+						});
+						$(".x{{x.Username}}").on({
+							mouseenter: function(){
+								$(".m{{d.id}}").animate({fontSize: '40px'}, 300);
+							},
+							mouseleave: function(){
+								$(".m{{d.id}}").animate({fontSize: '25px'}, 300);
+							}
+						});
+					});
+
+
+				</script>
+
+        <form method='post'>
+            {% csrf_token %}
+            <div>
+                <div class="x{{x.Username}}" id="a1">{{ x.Name }} <i style='cursor: pointer;'>(Edit)</i></div>
+                <div id='singleBox{{x.Username}}' style="display: none;" class='detailsEdit'>
+                    <input type='text' value='{{x.Username}}' style='display: none;' name='username'>
+                    <div class='fields'>
+                        <div style='width:20%;'>Name : </div>
+                        <div class='display:inline; max-width: 50%;'><input type='text' value='{{x.Name}}' name='name'></div>
+                    </div>
+                    <div class='fields'>
+                        <div style='width:50%;'>Cash : </div>
+                        <div class='display:inline; width: 50%;'><input type='text' value='{{x.Cash}}' name='cash'></div>
+                    </div>
+                    <div class='fields'>
+                        <div style='width:20%;'>Email : </div>
+                        <div class='display:inline; width: 50%;'><input type='text' value='{{x.Email}}' name='email'></div>
+                    </div>
+                    <div class='fields'>
+                        <div style='width:20%;'>xp : </div>
+                        <div class='display:inline; width: 50%;'><input type='text' value='{{x.xp}}' name='xp'></div>
+                    </div>
+                    <div class='fields'>
+                        <div style='width:20%;'>Winnings : </div>
+                        <div class='display:inline; width: 50%;'><input type='text' value='{{x.Winnings}}' name='winnings'></div>
+                    </div>
+                    <button name='editBtn' class='btn btn-success'>Edit</button>
+                </div>
+            </div>
+            
+        </form>
+	{% endfor %}
+    
+
+{% endblock %}

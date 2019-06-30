@@ -29,7 +29,7 @@ public class Calculate {
         point+=(fours*0.5);
         point+=(sixes);
         point+=((int)(runs)/50)*2;
-        point+=((int)runs/100)*4;
+        point+=((int)runs/100)*2;
 
         if(strike_rate<40)
         {
@@ -42,9 +42,11 @@ public class Calculate {
         else if(strike_rate<60)
         {
             point-=1;
-        }else {
+        }else if(strike_rate >=80)
+        {
             point++;
         }
+
 
 
 
@@ -75,7 +77,8 @@ public class Calculate {
         point+=(wickets_taken)*12;
         point+=((int)wickets_taken/4)*2;
         point+=((int)wickets_taken/5)*2;
-        maidens+=(wickets_taken)*2;
+        //maidens+=(wickets_taken)*2;
+
         if(overs_bowled>=5)
         {
             if(econ>9)
@@ -94,7 +97,7 @@ public class Calculate {
             {
                 point+=1;
             }
-            else if(econ>=2.5&& econ <3.5)
+            else if(econ>=2.5&& econ < 3.5)
             {
                 point+=2;
             }
@@ -139,5 +142,8 @@ public class Calculate {
             return  point;
 
         }
+
+
+
 
 }

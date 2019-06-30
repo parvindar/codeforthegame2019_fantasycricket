@@ -1,0 +1,4 @@
+django==2.0.2
+firebase_admin
+pycrypto
+inflect

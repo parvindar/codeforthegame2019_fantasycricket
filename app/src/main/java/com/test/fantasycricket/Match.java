@@ -10,6 +10,8 @@ public class Match {
     public String matchtype;
     public String uniqueid;
     public Boolean open=true;
+    String toss_winner;
+    String winner_team;
 
     public Match()
     {
@@ -24,5 +26,7 @@ public class Match {
         this.matchtype = matchtype;
         this.uniqueid = uniqueid;
         this.open=true;
+        toss_winner="";
+        winner_team="";
     }
 }

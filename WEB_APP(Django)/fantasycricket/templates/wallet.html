@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% load static %}
+<style>
+    .wallet-head{
+        text-align: center;
+        color: blue;
+        text-shadow: 5px 5px rgba(0, 0, 120, 0.1);
+    }
+    .wallet-box{
+        padding: 2%;
+        cursor: pointer;
+        position: relative;
+        width: 50%;
+        box-sizing: border-box;
+        text-align: center;
+        background-color: azure;
+        border: 2px solid rgba(120, 120, 255, 0.2);
+        border-radius: 10px;
+        left: 25%;
+        right: 25%;
+        transition: all 1s;
+    }
+    .wallet-box:hover{
+        padding: 4%;
+        background-color: rgba(120, 120, 255, 0.1);
+        border: 2px solid rgba(120, 120, 255, 0.3);
+        z-index: 1;
+        box-shadow: 5px 5px 8px rgba(120, 120, 255);
+        transition: all 0.2s;
+    }
+    
+    @media only screen and (max-width: 750px){
+        .wallet-box{
+            width: 70%;
+            left: 15%;
+            right: 15%;
+            transition: all 1s;
+        }
+    }
+    
+    .cash-link{
+        cursor: pointer;
+        color: blue;
+    }
+</style>
+
+
+<h1 class="wallet-head">My Wallet</h1>
+<div class="wallet-box">
+    <img src="{% static 'image/wallet.png' %}" height="50px" width="50px">
+    <div>Current Coins : {{ cash }}</div>
+    <div class="add-cash">
+        <form method='post' action="{% url 'fantasycricket:checkout' %}" id='addCashForm' style='display: none;'>
+            {% csrf_token %}
+            <label for='id_amount'>Enter Amount : </label>
+            <input type='number' name='amount' id='id_amount'>
+            <button>Confirm</button>
+        </form>
+        <div class='cash-link'>Add Cash With Paytm</div>
+    </div>
+    <script>
+        $('.cash-link').on('click', function(){
+            console.log('clicked!');
+            $('#addCashForm').css('display', 'block');
+        })
+    </script>
+</div>
+{% endblock %}
