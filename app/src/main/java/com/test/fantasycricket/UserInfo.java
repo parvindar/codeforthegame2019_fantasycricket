@@ -99,7 +99,7 @@ public class UserInfo {
                             UserInfo.winnings = Double.valueOf(String.valueOf(documentSnapshot.get("Winnings")));
                         }
                         try {
-                            MyAccountActivity.cashtv.setText(Constants.INR+String.valueOf(UserInfo.cash));
+                            MyAccountActivity.cashtv.setText(Constants.INR+String.valueOf(Constants.dec.format(UserInfo.cash)));
                         }
                         catch (NullPointerException ne)
                         {

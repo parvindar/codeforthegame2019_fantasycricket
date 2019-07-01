@@ -108,7 +108,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         }
 
 
-        // calculate points of 10 users before and 10 users after and the user itself and then show it on leaderboard.
+        // calculate points of 25 users before and 25 users after and the user itself and then show it on leaderboard.
 
         new getteamtask().execute();
 

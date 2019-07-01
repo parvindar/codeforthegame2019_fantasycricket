@@ -689,8 +689,15 @@ public class ContestActivity extends AppCompatActivity {
                                                 TextView yousuretv = dialogView.findViewById(R.id.tv_dialog_areyousure);
                                                 yousuretv.setVisibility(View.GONE);
 
-                                                title_tv.setText("Registrations are over");
-                                                detail_tv.setText("Contest has already started, You have missed this contest.\nYou can see the leaderboard.");
+                                                if(getItem(position).finished)
+                                                {
+                                                    title_tv.setText("Contest is finished");
+                                                    detail_tv.setText("Contest has finished, You have missed this contest.\nYou can always see the leaderboard.");
+                                                }
+                                                else {
+                                                    title_tv.setText("Registrations are over");
+                                                    detail_tv.setText("Contest has already started, You have missed this contest.\nYou can always see the leaderboard.");
+                                                }
 
                                                 Button yesbtn = dialogView.findViewById(R.id.btn_yes);
                                                 Button nobtn = dialogView.findViewById(R.id.btn_no);
@@ -711,6 +718,7 @@ public class ContestActivity extends AppCompatActivity {
                                                         intent1.putExtra("participantID",UserInfo.username);
                                                         intent1.putExtra("contestname",getItem(position).contestname);
                                                         intent1.putExtra("totalspots",getItem(position).totalspots);
+                                                        intent1.putExtra("finishedforall",getItem(position).finished);
                                                         intent1.putExtra("started",started);
 
                                                         startActivity(intent1);

@@ -267,7 +267,14 @@ public class CurrentPointsActivity extends AppCompatActivity {
                                 Player player = new Player(p.get("name").toString(),p.get("pid").toString(),Double.parseDouble(p.get("credits").toString()));
                                 player.points = Double.parseDouble(p.get("points").toString());
                                 player.team = p.get("team").toString();
-                                player.type=p.get("type").toString();
+                                try
+                                {
+                                    player.type=p.get("type").toString();
+                                }
+                                catch (Exception e)
+                                {
+                                    player.type ="";
+                                }
                                 if(p.get("captain")!=null && (boolean)p.get("captain"))
                                 {
                                     captain = player.pid;

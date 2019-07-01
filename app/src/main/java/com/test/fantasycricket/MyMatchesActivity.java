@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -56,15 +57,17 @@ public class MyMatchesActivity extends AppCompatActivity {
         db.collection("Users").document(UserInfo.username).collection("Matches").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                Log.d("debug","getting my matches at start");
                 mymatches_arrlist=new ArrayList<>();
                 mymatcheslist=new ArrayList<>();
                 for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots)
                 {
                     mymatches_arrlist.add(documentSnapshot.getId());
+                    Log.d("debug","getting my matches at start "+documentSnapshot.getId());
+
                 }
 
                 new getmatchestask().execute();
-
 
             }
         });
@@ -137,13 +140,12 @@ public class MyMatchesActivity extends AppCompatActivity {
                     JSONObject match = matchesjsonArray.getJSONObject(i);
                     matchtype = match.getString("type");
 
-                    if (!match.getString("type").equals("ODI")) {
-                        continue;
-                    }
                     if(!mymatches_arrlist.contains(match.getString("unique_id")))
                     {
                         continue;
                     }
+                    Log.d("debug","getting my matches at start inside aynctask"+match.getString("unique_id") );
+
                     team1 = match.getString("team-1");
                     team2 = match.getString("team-2");
                     date = match.getString("dateTimeGMT");
@@ -172,15 +174,15 @@ public class MyMatchesActivity extends AppCompatActivity {
                     long mins = (mills / (1000 * 60)) % 60;
                     String timeremaining;
                     if (hours > 48) {
-                        timeremaining = hours / 24 + " days\nremaining";
+                        timeremaining = hours / 24 + " days to go";
                     } else if (mills < 0) {
-                        timeremaining = "Match\nStarted";
+                        timeremaining = "Match Started";
                     } else if (hours == 0) {
-                        timeremaining = mins + " mins.\nremaining";
+                        timeremaining = mins + " mins. remaining";
                     } else {
-                        timeremaining = hours + " hrs.\nremaining";
+                        timeremaining = hours + " hrs. remaining";
                     }
-                    Match newmatch = new Match(uniqueid, team1, team2, date, matchtype, matchstarted);
+                    Match newmatch = new Match(uniqueid, team1, team2, date,d, matchtype, matchstarted);
                     newmatch.timeleft = timeremaining;
                     newmatch.winner_team = winner_team;
                     newmatch.toss_winner = toss_winner_team;
@@ -199,7 +201,6 @@ public class MyMatchesActivity extends AppCompatActivity {
             }
 
 
-            matchListAdaptor = new MatchListAdaptor(MyMatchesActivity.this, R.layout.matchlist_element_layout, mymatcheslist);
 
             return true;
 
@@ -208,6 +209,7 @@ public class MyMatchesActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             //Call your next task (ui thread)
+            matchListAdaptor = new MatchListAdaptor(MyMatchesActivity.this, R.layout.matchlist_element_layout, mymatcheslist);
             lv.setAdapter(matchListAdaptor);
 
             if(mSwipeRefreshLayout.isRefreshing())

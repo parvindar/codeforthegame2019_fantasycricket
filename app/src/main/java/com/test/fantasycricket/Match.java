@@ -1,10 +1,13 @@
 package com.test.fantasycricket;
 
+import java.util.Date;
+
 public class Match {
     String team1;
     String team2;
     public String date;
     public String time;
+    public Date realdate;
     public String timeleft;
     public boolean started;
     public String matchtype;
@@ -18,7 +21,7 @@ public class Match {
 
     }
 
-    public Match(String uniqueid,String team1, String team2, String date,String matchtype ,Boolean started) {
+    public Match(String uniqueid,String team1, String team2, String date,Date realdate,String matchtype ,Boolean started) {
         this.team1 = team1;
         this.team2 = team2;
         this.date = date;
@@ -28,5 +31,7 @@ public class Match {
         this.open=true;
         toss_winner="";
         winner_team="";
+        this.realdate=realdate;
+
     }
 }

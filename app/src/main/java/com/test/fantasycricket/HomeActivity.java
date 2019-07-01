@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -23,9 +24,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,8 +59,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Nullable;
 
@@ -68,13 +76,74 @@ public class HomeActivity extends AppCompatActivity
     MatchListAdaptor matchListAdaptor;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SwipeRefreshLayout mSwipeRefreshLayout;
-
+    Spinner spinner;
+    String selectedtype="World Cup";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         FirebaseApp.initializeApp(HomeActivity.this);
 
+        String[] matchtypes={"World Cup","ODI","T20"};
+        spinner = findViewById(R.id.spinner_matchtype);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(HomeActivity.this,android.R.layout.simple_spinner_dropdown_item,matchtypes);
+        spinner.setAdapter(arrayAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(final AdapterView<?> parent, View view, final int position, long id) {
+
+
+                selectedtype = parent.getItemAtPosition(position).toString();
+
+                if(!selectedtype.equals("World Cup")){
+
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(HomeActivity.this);
+                    LayoutInflater inflater = getLayoutInflater();
+                    final View dialogView = inflater.inflate(R.layout.confirm_dialog_layout, null);
+                    dialogBuilder.setView(dialogView);
+                    final AlertDialog b = dialogBuilder.create();
+                    b.show();
+
+                    TextView title_tv = dialogView.findViewById(R.id.tv_confirmbox_title);
+                    TextView detail_tv = dialogView.findViewById(R.id.tv_dialogbox_detail);
+                    title_tv.setText("This app is currently designed for ICC World Cup");
+                    detail_tv.setText("This app is currently designed for ICC World Cup, you might not see the contests in other matches.");
+
+                    Button yesbtn = dialogView.findViewById(R.id.btn_yes);
+                    Button nobtn = dialogView.findViewById(R.id.btn_no);
+
+                    yesbtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            new getmatchestask().execute();
+
+                            b.dismiss();
+                        }
+                    });
+
+                    nobtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            selectedtype="World Cup";
+                            spinner.setSelection(0);
+                            b.dismiss();
+                        }
+                    });
+
+
+                }
+                else {
+                    new getmatchestask().execute();
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         //AUTO LOG-IN FUNCTION. ==============================================================
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("app",Context.MODE_PRIVATE);
         Boolean islogined =sharedPref.getBoolean("logined",false);
@@ -219,6 +288,7 @@ public class HomeActivity extends AppCompatActivity
         });
 
         //===============================================================
+
 
 
 
@@ -434,16 +504,43 @@ public class HomeActivity extends AppCompatActivity
                     JSONObject match = matchesjsonArray.getJSONObject(i);
                     matchtype = match.getString("type");
 
-                    if(!match.getString("type").equals("ODI"))
-                    {
-                        continue;
-                    }
+
                     team1 = match.getString("team-1");
                     team2 = match.getString("team-2");
+                    if(selectedtype.equals("World Cup"))
+                    {
+                        if(!match.getString("type").equals("ODI") || !Constants.getWorldcupteams().contains(team1.toLowerCase()) || !Constants.getWorldcupteams().contains(team2.toLowerCase()) )
+                        {
+                            continue;
+                        }
+
+                        matchtype = "ICC World Cup";
+                    }
+                    else if(selectedtype.equals("ODI"))
+                    {
+                        if(!match.getString("type").equals("ODI")  )
+                        {
+                            continue;
+                        }
+                        if(Constants.getWorldcupteams().contains(team1.toLowerCase()) && Constants.getWorldcupteams().contains(team2.toLowerCase()))
+                        {
+                            matchtype = "ICC World Cup";
+                        }
+                    }
+                    else if(selectedtype.equals("T20"))
+                    {
+                        if(!match.getString("type").equals("Twenty20")  )
+                        {
+                            continue;
+                        }
+                    }
+
+
                     date = match.getString("dateTimeGMT");
                     uniqueid = match.getString("unique_id");
                     matchstarted = match.getBoolean("matchStarted");
-                    try {
+                    try
+                    {
                         winner_team = match.getString("winner_team");
                     }
                     catch (Exception e)
@@ -465,29 +562,29 @@ public class HomeActivity extends AppCompatActivity
                     String timeremaining;
                     if(hours>48)
                     {
-                        timeremaining = hours/24 +" days\nremaining";
+                        timeremaining = hours/24 +" days to go";
                     }
                     else if(mills<0)
                     {
-                        timeremaining = "Match\nStarted";
+                        timeremaining = "Match Started";
                     }
                     else if(hours==0)
                     {
-                        timeremaining = mins +" mins.\nremaining";
+                        timeremaining = mins +" mins. remaining";
                     }
                     else
                     {
-                        timeremaining = hours + " hrs. " + mins+" mins. \nremaining";
+                        timeremaining = hours + " hrs. " + mins+" mins. remaining";
                     }
-                    Match newmatch = new Match(uniqueid,team1,team2,date,matchtype,matchstarted);
+                    Match newmatch = new Match(uniqueid,team1,team2,date,d,matchtype,matchstarted);
                     newmatch.timeleft=timeremaining;
                     newmatch.winner_team = winner_team;
                     newmatch.toss_winner = toss_winner_team;
+
                     if(hours>72)
                     {
                         newmatch.open=false;
                     }
-
                     matches.add(newmatch);
 
                 }
@@ -497,10 +594,6 @@ public class HomeActivity extends AppCompatActivity
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-
-
-            matchListAdaptor = new MatchListAdaptor(HomeActivity.this,R.layout.matchlist_element_layout,matches);
 
 
 
@@ -516,6 +609,8 @@ public class HomeActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(Boolean result) {
             //Call your next task (ui thread)
+            matchListAdaptor = new MatchListAdaptor(HomeActivity.this,R.layout.matchlist_element_layout,matches);
+
             matchlist.setAdapter(matchListAdaptor);
 
             if(mSwipeRefreshLayout.isRefreshing())
@@ -528,6 +623,105 @@ public class HomeActivity extends AppCompatActivity
 
     }
 
+
+
+
+
+
+    private class Product {
+        String name;
+        long expirationTime;
+
+        public Product(String name, long expirationTime) {
+            this.name = name;
+            this.expirationTime = expirationTime;
+        }
+    }
+
+
+    public class CountdownAdapter extends ArrayAdapter<Product> {
+
+        private LayoutInflater lf;
+        private List<ViewHolder> lstHolders;
+        private Handler mHandler = new Handler();
+        private Runnable updateRemainingTimeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (lstHolders) {
+                    long currentTime = System.currentTimeMillis();
+                    for (ViewHolder holder : lstHolders) {
+                        holder.updateTimeRemaining(currentTime);
+                    }
+                }
+            }
+        };
+
+        public CountdownAdapter(Context context, List<Product> objects) {
+            super(context, 0, objects);
+            lf = LayoutInflater.from(context);
+            lstHolders = new ArrayList<>();
+            startUpdateTimer();
+        }
+
+        private void startUpdateTimer() {
+            Timer tmr = new Timer();
+            tmr.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mHandler.post(updateRemainingTimeRunnable);
+                }
+            }, 1000, 1000);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if (convertView == null) {
+                holder = new ViewHolder();
+                convertView = lf.inflate(R.layout.matchlist_element_layout, parent, false);
+/*
+                holder.tvProduct = (TextView) convertView.findViewById(R.id.tvProduct);
+                holder.tvTimeRemaining = (TextView) convertView.findViewById(R.id.tvTimeRemaining);
+*/
+                convertView.setTag(holder);
+
+                synchronized (lstHolders) {
+                    lstHolders.add(holder);
+                }
+            }
+            else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            holder.setData(getItem(position));
+
+            return convertView;
+        }
+    }
+
+    private class ViewHolder {
+        TextView tvProduct;
+        TextView tvTimeRemaining;
+        Product mProduct;
+
+        public void setData(Product item) {
+            mProduct = item;
+            tvProduct.setText(item.name);
+            updateTimeRemaining(System.currentTimeMillis());
+        }
+
+        public void updateTimeRemaining(long currentTime) {
+            long timeDiff = mProduct.expirationTime - currentTime;
+            if (timeDiff > 0) {
+                int seconds = (int) (timeDiff / 1000) % 60;
+                int minutes = (int) ((timeDiff / (1000 * 60)) % 60);
+                int hours = (int) ((timeDiff / (1000 * 60 * 60)) % 24);
+                tvTimeRemaining.setText(hours + " hrs " + minutes + " mins " + seconds + " sec");
+            } else {
+                tvTimeRemaining.setText("Expired!!");
+            }
+        }
+    }
 
 
 

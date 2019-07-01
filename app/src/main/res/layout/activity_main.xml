@@ -20,8 +20,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="55dp"
                 android:layout_weight="1"
+                android:background="@color/design_default_color_primary"
                 android:text="Matches"
                 android:textAlignment="center"
+                android:textColor="@android:color/white"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"
@@ -29,6 +31,49 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.064" />
+
+            <Spinner
+                android:id="@+id/spinner_matchtype"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:spinnerMode="dropdown" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <CheckBox
+                    android:id="@+id/cb_worldcup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="World Cup" />
+
+                <CheckBox
+                    android:id="@+id/cb_odi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ODI" />
+
+                <CheckBox
+                    android:id="@+id/cb_t20"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="T20" />
+
+                <CheckBox
+                    android:id="@+id/checkBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Test" />
+            </LinearLayout>
 
             <android.support.v4.widget.SwipeRefreshLayout
                 android:id="@+id/activity_main_swipe_refresh_layout"

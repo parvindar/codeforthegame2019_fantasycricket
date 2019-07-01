@@ -2,8 +2,15 @@ package com.test.fantasycricket;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Constants {
+
+
+    public static  ArrayList<String> getWorldcupteams()
+    {
+        return new ArrayList<>(Arrays.asList("india","pakistan","west indies","bangladesh","australia","south africa","new zealand","england","sri lanka","afghanistan"));
+    }
 
     public static String getTeamShortName(String fullname)
     {

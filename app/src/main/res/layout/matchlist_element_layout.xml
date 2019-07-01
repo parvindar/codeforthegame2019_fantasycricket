@@ -30,23 +30,28 @@
                 android:id="@+id/tv_matchtype"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:text="World Cup"
-                android:textColor="@color/design_default_color_primary_dark" />
+                android:textColor="@color/design_default_color_primary_dark"
+                android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/textView40"
+                android:id="@+id/tv_timeremaining_top"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:textSize="12sp"
+                android:textStyle="bold"
                 tools:text="test" />
 
             <TextView
                 android:id="@+id/tv_matchstatus"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginBottom="5dp"
                 android:layout_weight="1"
                 android:text="status"
                 android:textAlignment="textEnd"
@@ -59,8 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            android:weightSum="9">
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -90,17 +94,51 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_timeleft"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_height="match_parent"
                 android:layout_weight="3"
+                android:orientation="horizontal"
                 android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:text="5 days\nremaining"
-                android:textAlignment="center"
-                android:textSize="12sp" />
+                android:paddingTop="5dp"
+                android:paddingRight="5dp">
+
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/img_team1"
+                    android:layout_width="85dp"
+                    android:layout_height="27dp"
+                    android:layout_weight="3"
+                    app:civ_border_color="#8796FF"
+                    app:civ_border_width="0dp"
+                    app:civ_shadow="false"
+                    app:civ_shadow_color="#B7F9FF"
+                    app:civ_shadow_radius="0"
+                    app:srcCompat="@drawable/cricket" />
+
+                <TextView
+                    android:id="@+id/tv_timeleft"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:layout_weight="3"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:text="vs"
+                    android:textAlignment="center"
+                    android:textSize="12sp" />
+
+                <com.mikhaellopez.circularimageview.CircularImageView
+                    android:id="@+id/img_team2"
+                    android:layout_width="85dp"
+                    android:layout_height="27dp"
+                    android:layout_weight="3"
+                    app:civ_border_color="#8796FF"
+                    app:civ_border_width="0dp"
+                    app:civ_shadow="false"
+                    app:civ_shadow_color="#B7F9FF"
+                    app:civ_shadow_radius="0"
+                    app:srcCompat="@drawable/cricket" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
