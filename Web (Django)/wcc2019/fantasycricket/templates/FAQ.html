@@ -1,0 +1,78 @@
+{% extends log|yesno:'base.html,baseHome.html' %}
+
+{% block body %}
+{% load static %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+    .singleQA{
+        background-color: beige;
+        opacity: 0.9;
+    }
+    .question{
+        font-family: 'Century Gothic';
+        font-size: 20px;
+        padding: 2%;
+    }
+    .answer{
+        padding: 2%;
+        padding-top: 0%;
+        font-size: 15px;
+    }
+</style>
+
+<h1 style='color: white; text-align: center;'> Frequently Asked Questions </h1>
+
+<div class='singleQA'>
+    <div class='question'><i class="fa fa-question" style="color:red; font-size: 30px;"></i><b> What are the things to be done for participating in a contest ? </b> </div>
+    <div class='answer'>
+        
+        <i class="fa fa-reply" style="color:green;"></i> Follow these 5 easy steps to get started:
+        <ul>
+            <li><i>Select A Match:</i> Select any of the upcoming matches from any of the current or upcoming cricket series</li>
+            <li><i>Create Your Team:</i> Use your sports knowledge and showcase your skills to create your 11 players team within a budget of 100 credits</li>
+            <li><i>Join a Contest:</i> Join any contest to win cash and the ultimate bragging rights to showoff your improvement in the contests!</li>
+            <li><i>Follow the Match:</i> Watch the real match and track your fantasy scorecard</li>
+            <li><i>Get the winnings added in your wallet :</i> Instantly get your winnings in your account wallet</li>
+        </ul>
+    </div>
+</div>
+
+
+<div class='singleQA'>
+    <div class='question'><i class="fa fa-question" style="color:red; font-size: 30px;"></i><b> Can I create my own contest? </b> </div>
+    <div class='answer'>
+        <i class="fa fa-reply" style="color:green;"></i> <b><i>Sure, </i></b>the users are free to create their own contest. They will also be visible to public. Anyone can participate in your contest. Go to matches section and select 'Participate in contest' to open the contests list. You'll see a button named <b>'Create New Contest'</b>. You can fill your number of participants and total prize to create your own customized contest.
+    </div>
+</div>
+
+
+<div class='singleQA'>
+    <div class='question'><i class="fa fa-question" style="color:red; font-size: 30px;"></i><b> What do <i>'50% gets prize'</i> and <i>'winner takes all'</i> means? </b> </div>
+    <div class='answer'>
+        <i class="fa fa-reply" style="color:green;"></i> When you create your own contest, you'll be asked to select the type of contest you want to create. These are the options. 
+        <ul>
+            <li><b><i>50% Gets Prize : </i></b> The total amount of prize will be distributed to 50% of people, the 50% people will get the prize in decreasing way. First 10% will get 30% of the total prize, second 10% will get 25% of teh total prize, next 10% will get 20% of teh total prize, next 10% will get 15% of teh total prize, next 10% will get 10% of teh total prize. </li>
+            <li><b><i>Winner Takes All : </i></b> The winner of the contest will get all the money. If there are multiple winners with same points, the total prize will be divided amongst the winners. </li>
+        </ul>
+    </div>
+</div>
+
+
+<div class='singleQA'>
+    <div class='question'><i class="fa fa-question" style="color:red; font-size: 30px;"></i><b> Is there any default contest which is made by the system already ? </b> </div>
+    <div class='answer'>
+        <i class="fa fa-reply" style="color:green;"></i> <b><i>Yes, </i></b> you'll find 3 contests on top named <i>'Mega Contest'</i>, <i>'Beginners Contest'</i> and <i>'Champions Contest'</i>.
+    </div>
+</div>
+
+
+<div class='singleQA'>
+    <div class='question'><i class="fa fa-question" style="color:red; font-size: 30px;"></i><b> What are the types of default contests which are made by the system already ? </b> </div>
+    <div class='answer'>
+        <i class="fa fa-reply" style="color:green;"></i> They all are <i>Winner Takes All</i> type contest.
+    </div>
+</div>
+
+{% endblock %}

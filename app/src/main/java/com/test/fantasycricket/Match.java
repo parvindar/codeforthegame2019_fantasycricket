@@ -13,6 +13,8 @@ public class Match {
     public String matchtype;
     public String uniqueid;
     public Boolean open=true;
+    public String team1_score;
+    public String team2_score;
     String toss_winner;
     String winner_team;
 
@@ -31,6 +33,8 @@ public class Match {
         this.open=true;
         toss_winner="";
         winner_team="";
+        team1_score="";
+        team2_score="";
         this.realdate=realdate;
 
     }

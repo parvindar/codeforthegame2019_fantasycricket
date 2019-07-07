@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+{% load tags %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .single-match-box{
+        color: aliceblue;
+        padding: 2%;
+        margin: 1%;
+        background-color: rgba(120 ,120, 120, 0.5);
+        cursor: pointer;
+        position: relative;
+        width: 70%;
+        left: 15%;
+        right: 15%;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.8);
+        transition: all 1s;
+    }
+    .single-match-box:hover{
+        width: 80%;
+        left: 10%;
+        background-color: rgba(120, 120, 255, 0.9);
+        box-shadow: 2px 2px 8px rgba(120, 120, 255, 0.8);
+        transition: all 1s;
+    }
+    
+    @media only screen and (max-width: 750px){
+        .single-match-box{
+            width: 96%;
+            left: 2%;
+            right: 2%;
+            transition: all 1s;
+        }
+    }
+    
+    .teams-class{
+        font-size: 20px;
+    }
+</style>
+
+<h1 style="text-align: center;"> My Matches </h1>
+
+<div class="outer-box">
+    <form method='post' name="matchForm" action="{% url 'fantasycricket:myContests' %}">
+        {% csrf_token %}
+        {% for match in myMatches %}
+            <div class='single-match-box' id='single-match{{ match.unique_id }}'>
+                <input type="radio" value="{{ match.unique_id }}" id="choice_match_id{{ match.unique_id }}" name='choice_match_id_user' style="display: none;">
+                <div class="teams-class"> <img src="{% static 'image/ball5.png' %}" height='70px' width='70px' class='ball-img'> <b>{{ match|filterKey:"team-1" }} VS {{ match|filterKey:"team-2" }}</b> </div>
+                <div> Timing : {{ match.dateTimeGMT }} </div>
+                
+                {% if match.matchStarted == True %} 
+                    <div style="color: green;"><i>Match Started</i></div> 
+                {% endif %}
+                <br>
+            
+                <script>
+                    $('#single-match{{ match.unique_id }}').on('mouseover', function(){
+                        $('#choice_match_id{{ match.unique_id }}').prop('checked', true);
+                    })
+                    $('#single-match{{ match.unique_id }}').on('mouseout', function(){
+                        $('#choice_match_id{{ match.unique_id }}').prop('checked', false);
+                    })
+                    $('#single-match{{ match.unique_id }}').on('click', function(){
+                        $('form[name=matchForm]').submit();
+                        showLoader();
+                    })
+                </script>
+            </div>
+        {% endfor %}
+    </form>
+</div>
+
+{% endblock %}

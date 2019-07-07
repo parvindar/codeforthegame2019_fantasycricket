@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% load static %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .profile-box{
+        cursor: pointer;
+        margin-top: 1%;
+        width: 60%;
+        left: 20%;
+        right: 20%;
+        position: relative;
+        background-color: #ffffff;
+        opacity: 0.8;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(120, 120, 255, 0.2);
+        transition: all 1s;
+        padding: 1% 0;
+        border-radius: 5%;
+    }
+    .profile-box:hover{
+        padding: 1%;
+        z-index: 1;
+        opacity: 1;
+        box-shadow: 2px 2px 8px rgba(120, 120, 120, 0.8);
+        transition: all 1s;
+    }
+    
+    @media only screen and (max-width: 800px){
+        .profile-box{
+            width: 90%;
+            left: 5%;
+            right: 5%;
+            transition: all 1s;
+        }
+    }
+    
+    .cash-link{
+        cursor: pointer;
+        color: blue;
+        font-size: 25px;
+    }
+    
+    .superuserControl{
+        position: relative;
+        left: 40%;
+        background-color: red;
+        color: white;
+        width: 20%;
+        text-align: center;
+        font-size: 20px;
+        padding: 2%;
+        margin: 2%;
+        text-decoration: none;
+    }
+    .superuserControl:hover{
+        box-shadow: 2px 2px 5px red;
+        text-decoration: none;
+    }
+</style>
+
+
+
+<div class='profile-box'>    
+    <h3>My Profile</h3>
+    <div>Name : {{ name }}</div>
+    <div>Username : {{ username }}</div>
+    <div>Email : {{ email }}</div>
+    <div>Winnings : {{ winnings }}</div>
+    <div>xp : {{ xp }}</div>
+    
+    <img src="{% static 'image/wallet1.png' %}" height="30px" width="30px">
+    <div style="display: inline;"> Wallet Balance : {{ cash }}</div>
+    <div class="add-cash">
+        <form method='post' action="{% url 'fantasycricket:checkout' %}" id='addCashForm' style='display: none;'>
+            {% csrf_token %}
+            <label for='id_amount'>Enter Amount : </label>
+            <input type='number' name='amount' id='id_amount'>
+            <button class='btn btn-primary' onclick="showLoader()">Confirm</button>
+        </form>
+        <div class='cash-link'><img src="{% static 'image/paytm.png' %}" style='height: 30px; width:30px;'>Add Cash With Paytm</div>
+    </div>
+    <script>
+        $('.cash-link').on('click', function(){
+            console.log('clicked!');
+            $('#addCashForm').css('display', 'block');
+        })
+    </script>
+</div>
+
+
+    
+    
+
+{% if admin %}
+<a href="{% url 'fantasycricket:superProfile' %}" style='text-decoration: none;'>
+    <div class='superuserControl'>
+         Control Users Profile 
+    </div>
+</a>
+{% endif %}
+
+{% endblock %}

@@ -182,6 +182,7 @@ public class HomeActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle("CrickSkill");
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -289,6 +290,15 @@ public class HomeActivity extends AppCompatActivity
 
         //===============================================================
 
+        Button notificationbtn = findViewById(R.id.btn_notifications);
+        notificationbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(HomeActivity.this, NotificationsActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
 
@@ -303,8 +313,6 @@ public class HomeActivity extends AppCompatActivity
         });
 
         //=========================================================================
-
-
 
 
 
@@ -511,7 +519,11 @@ public class HomeActivity extends AppCompatActivity
                     {
                         if(!match.getString("type").equals("ODI") || !Constants.getWorldcupteams().contains(team1.toLowerCase()) || !Constants.getWorldcupteams().contains(team2.toLowerCase()) )
                         {
-                            continue;
+
+                            if(!team1.equals("TBA"))
+                                continue;
+
+
                         }
 
                         matchtype = "ICC World Cup";
@@ -522,7 +534,7 @@ public class HomeActivity extends AppCompatActivity
                         {
                             continue;
                         }
-                        if(Constants.getWorldcupteams().contains(team1.toLowerCase()) && Constants.getWorldcupteams().contains(team2.toLowerCase()))
+                        if(Constants.getWorldcupteams().contains(team1.toLowerCase()) && Constants.getWorldcupteams().contains(team2.toLowerCase()) || team1.equals("TBA"))
                         {
                             matchtype = "ICC World Cup";
                         }
@@ -576,10 +588,33 @@ public class HomeActivity extends AppCompatActivity
                     {
                         timeremaining = hours + " hrs. " + mins+" mins. remaining";
                     }
+
+                    String team1_score="",team2_score="";
+                    if(!toss_winner_team.isEmpty())
+                    {
+                        try {
+                            JSONObject scoreobject = getJSONObjectFromURL(Constants.getApiUrlScore(uniqueid));
+                            String score = scoreobject.getString("score");
+                            score = score.trim();
+                            score = score.replaceAll(team1,"").replaceAll(team2,"").trim();
+                            team1_score = score.split("v")[0].trim();
+                            team2_score = score.split("v")[1].trim();
+                            Log.d("debug",score);
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+
+                    }
+
                     Match newmatch = new Match(uniqueid,team1,team2,date,d,matchtype,matchstarted);
                     newmatch.timeleft=timeremaining;
                     newmatch.winner_team = winner_team;
                     newmatch.toss_winner = toss_winner_team;
+                    newmatch.team1_score=team1_score;
+                    newmatch.team2_score = team2_score;
+
 
                     if(hours>72)
                     {
@@ -610,7 +645,6 @@ public class HomeActivity extends AppCompatActivity
         protected void onPostExecute(Boolean result) {
             //Call your next task (ui thread)
             matchListAdaptor = new MatchListAdaptor(HomeActivity.this,R.layout.matchlist_element_layout,matches);
-
             matchlist.setAdapter(matchListAdaptor);
 
             if(mSwipeRefreshLayout.isRefreshing())

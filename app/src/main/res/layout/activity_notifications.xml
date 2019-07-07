@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NotificationsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView45"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/design_default_color_primary_dark"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Notifications"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_reflesh_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ListView
+                android:id="@+id/lv_notificationlist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:dividerHeight="8dp"
+                android:padding="10dp" />
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

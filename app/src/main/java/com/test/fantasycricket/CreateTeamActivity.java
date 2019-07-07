@@ -142,8 +142,8 @@ public class CreateTeamActivity extends AppCompatActivity {
                 }
                 else
                 {
-
                     //---------------------------------------------------------------===============
+
                     Intent intent = new Intent(CreateTeamActivity.this, ChooseCaptainActivity.class);
                     ChooseCaptainActivity.myteamlist = myteam;
                     intent.putExtra("team1",team1);
@@ -152,9 +152,11 @@ public class CreateTeamActivity extends AppCompatActivity {
                     intent.putExtra("contestid",contestid);
                     intent.putExtra("price",price);
                     startActivity(intent);
+
                     //-------------------------------------------------------------=============
 
                 }
+
             }
         });
 

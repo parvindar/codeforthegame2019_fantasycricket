@@ -1,0 +1,142 @@
+{% extends log|yesno:'base.html,baseHome.html' %}
+
+{% block body %}
+
+{% load static %}
+{% load tags %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .single-match-box{
+        padding: 2%;
+        margin: 1%;
+        //background-color: aliceblue;
+        background-color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        position: relative;
+        width: 70%;
+        left: 15%;
+        right: 15%;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(120, 120, 255, 0.2);
+        transition: all 1s;
+    }
+    .single-match-box:hover{
+        padding: 4%;
+        box-shadow: 2px 2px 8px rgba(120, 120, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.5);
+        transition: all 1s;
+    }
+    @media only screen and (max-width: 750px){
+        .single-match-box{
+            width: 96%;
+            left: 2%;
+            right: 2%;
+            transition: all 1s;
+        }
+    }
+    
+    .single-match-box-upcoming{
+        padding: 2%;
+        color: aliceblue;
+        margin: 1%;
+        background-color: rgba(120, 120, 120, 0.9);
+        position: relative;
+        width: 70%;
+        left: 15%;
+        right: 15%;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(120, 120, 120, 0.2);
+        transition: all 1s;
+    }
+    @media only screen and (max-width: 750px){
+        .single-match-box-upcoming{
+            width: 96%;
+            left: 2%;
+            right: 2%;
+            transition: all 1s;
+        }
+    }
+    
+    .teams-class{
+        font-size: 20px;
+    }
+    .ball-img{
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+    }
+</style>
+
+
+<div class="outer-box">
+    <form method='post' name="matchForm" action="{% url 'fantasycricket:contests' %}">
+        {% csrf_token %}
+        {% for match in matches %}
+            <div class='single-match-box single-match-box{{match.unique_id}}' id='single-match{{ match.unique_id }}'>
+                <!--{% if match.applicable %}
+                    {% if not match.winner_team %}
+                        <input type="radio" value="{{ match.unique_id }}" id="choice_match_id{{ match.unique_id }}" name='choice_match_id' style="display: none;">
+                    {% endif %}
+                {% endif %}-->
+                <input type="radio" value="{{ match.unique_id }}" id="choice_match_id{{ match.unique_id }}" name='choice_match_id' style="display: none;">
+                <div class='teams-class'>
+                    <img src="{{ match.img1 }}" class='ball-img'>
+                    <b>{{ match|filtercut:"team-1" }} VS {{ match|filtercut:"team-2" }}</b> 
+                    <img src="{{ match.img2 }}" class='ball-img'>
+                </div>
+                <div class="teams-class"> <b>{{ match|filterKey:"team-1" }} VS {{ match|filterKey:"team-2" }}</b> </div>
+                
+                {% if match.winner_team %}
+                    <div style='color: red;'><i>Match Finished</i></div>
+                    <div> 
+                        <button class='btn btn-success liveScoreBtn' tyep='button'>Watch Live Score</button>
+                    </div>
+                {% else %}
+                    {% if match.matchStarted == True %}
+                        <div style="color: green;"><i>Match Started</i></div> 
+                        <div> 
+                            <button class='btn btn-success liveScoreBtn' tyep='button'>Watch Live Score</button>
+                            <button class='btn btn-primary'>Participate in Contest</button> 
+                        </div>
+                        
+                    {% else %}
+                        <div> {{ match.remainingTime }} </div>
+                    {% endif %}
+                {% endif %}
+                <script>
+                    $('.liveScoreBtn').on('click', function(){
+                        $('form[name=matchForm]').attr('action', "{% url 'fantasycricket:liveScore' %}")
+                    })
+                </script>
+                <br>
+            
+                <script>
+                    $('#single-match{{ match.unique_id }}').on('mouseover', function(){
+                        $('#choice_match_id{{ match.unique_id }}').prop('checked', true);
+                    })
+                    $('#single-match{{ match.unique_id }}').on('mouseout', function(){
+                        $('#choice_match_id{{ match.unique_id }}').prop('checked', false);
+                    })
+                    
+                    {% if match.applicable %}
+                        {% if not match.winner_team %}
+                            $('#single-match{{ match.unique_id }}').on('click', function(){
+                                $('form[name=matchForm]').submit();
+                            })
+                        {% else %}
+                            $('.single-match-box{{match.unique_id}}').removeClass('single-match-box').addClass('single-match-box-upcoming');
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if not match.applicable %}
+                        $('.single-match-box{{match.unique_id}}').removeClass('single-match-box').addClass('single-match-box-upcoming');
+                    {% endif %}
+                </script>
+            </div>
+        {% endfor %}
+    </form>
+</div>
+{% endblock %}

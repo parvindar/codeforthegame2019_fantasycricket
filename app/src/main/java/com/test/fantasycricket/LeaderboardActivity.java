@@ -2,7 +2,6 @@ package com.test.fantasycricket;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,20 +9,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,21 +24,18 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.view.Gravity.BOTTOM;
 
 public class LeaderboardActivity extends AppCompatActivity {
 
@@ -64,6 +54,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     FirebaseFirestore db;
     boolean started,finishedforme,finishedforall=false,awarded=false;
 
+    ParticipantListAdaptor participantListAdaptor;
     SwipeRefreshLayout mSwipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,8 +94,8 @@ public class LeaderboardActivity extends AppCompatActivity {
         participantid_tv.setText(participantID);
         if(notregistered)
         {
-            points_tv.setText("?");
-            rank_tv.setText("?");
+            points_tv.setText("--");
+            rank_tv.setText("--");
         }
 
 
@@ -309,6 +300,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 
                                     }
                                 }
+
                             });
 
 
@@ -442,11 +434,13 @@ public class LeaderboardActivity extends AppCompatActivity {
 
                    Log.d("apicall","api is called in leaderboard");
                     final JSONObject data = main_object.getJSONObject("data");
+
                     try
                     {
                         man_of_the_match = data.getJSONObject("man-of-the-match").getString("name");
                         Log.d("manofthematch","man found man = "+man_of_the_match);
                     }
+
                     catch (Exception e)
                     {
                         e.toString();
@@ -457,6 +451,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                     final JSONArray batting_arr_object = data.getJSONArray("batting");
                     final JSONArray bowling_arr_object = data.getJSONArray("bowling");
                     final JSONArray fielding_arr_object = data.getJSONArray("fielding");
+
                     JSONArray team1arrjson,team2arrjson;
 
                     if(!man_of_the_match.isEmpty())
@@ -675,13 +670,16 @@ public class LeaderboardActivity extends AppCompatActivity {
 
 //                                    Log.d("calculate"," calculated feilding  "+id);
 
+
+
+
                                     totalpoints = 0d;
                                     Log.d("finalpoints", "size of playerarraylist "+id + " "+playerArrayList.size());
 
                                     for (Player player : playerArrayList) {
 
                                         totalpoints += player.points;
-                                        Log.d("finalpoints", "Calculating totalpoints for "+id + " "+player.name+" - "+player.points+" total - "+totalpoints);
+                                        //Log.d("finalpoints", "Calculating totalpoints for "+id + " "+player.name+" - "+player.points+" total - "+totalpoints);
                                     }
 
 
@@ -693,9 +691,10 @@ public class LeaderboardActivity extends AppCompatActivity {
                                         teamdata.put("Finished",true);
                                     }
 
-                                    for (Player player : playerArrayList)
+
+                                    for(Map<String,Object> p : playerobject)
                                     {
-                                        for(Map<String,Object> p : playerobject)
+                                        for (Player player : playerArrayList)
                                         {
                                             if(p.get("pid").equals(player.pid))
                                             {
@@ -719,6 +718,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                                 {
                                     e.printStackTrace();
                                 }
+
                             }
 
                             if(!finishedforall&&finishedforall1 && finishedforall2)
@@ -727,7 +727,52 @@ public class LeaderboardActivity extends AppCompatActivity {
                                 db.collection("Matches").document(matchid).collection("Contests").document(contestid).update("Finished",true);
                             }
 
+                            db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").orderBy("Points", Query.Direction.DESCENDING).limit(100).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    ArrayList<Participant> participants = new ArrayList<>();
+                                    int i =0;
+                                    for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots)
+                                    {
+                                        String id = documentSnapshot.getId();
+                                        double points;
+                                        try{
+                                            points = (double)documentSnapshot.get("Points");
+
+                                        }catch (Exception e)
+                                        {
+                                            points = (double)(((Long)documentSnapshot.get("Points")).intValue());
+                                        }
+                                        if(i==0)
+                                        {
+                                            i++;
+                                        }
+                                        else
+                                        {
+                                            if(participants.get(i-1).points != points)
+                                            {
+                                                i++;
+                                            }
+                                        }
+                                        participants.add(new Participant(id,points,i));
+
+                                        if(id.equals(participantID))
+                                        {
+                                            points_tv.setText(Constants.dec.format(points));
+                                            rank_tv.setText(String.valueOf(i));
+                                        }
+                                    }
+
+                                    participantListAdaptor = new ParticipantListAdaptor(LeaderboardActivity.this,R.layout.leaderboard_element,participants);
+                                    lv.setAdapter(participantListAdaptor);
+
+
+                                }
+                            });
+
                             updateContestStatustext();
+
+
 
 
                         }
@@ -739,18 +784,20 @@ public class LeaderboardActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
-                            ArrayList<Player> playerArrayList = new ArrayList<>();
                             if(queryDocumentSnapshots.isEmpty()){
                                 finishedforall2=true;
                                 Log.d("debug","before finisheforall2 true "+finishedforall2);
 
                             }
 
+
                             Log.d("debug","before me document size "+queryDocumentSnapshots.size());
                             for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                 try {
+                                    ArrayList<Player> playerArrayList = new ArrayList<>();
+
                                     String id = documentSnapshot.getId();
-                                    Log.d("calculate","before me : calculating points for "+id);
+                                    Log.d("finalpoints","before me : calculating points for "+id);
 
                                     Map<String, Object> teamdata = documentSnapshot.getData();
                                     ArrayList<Map<String, Object>> playerobject = (ArrayList<Map<String, Object>>) teamdata.get("Team");
@@ -889,6 +936,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                                     for (Player player : playerArrayList) {
 
                                         totalpoints += player.points;
+                                        Log.d("finalpoints", "Calculating totalpoints for "+id + " "+player.name+" - "+player.points+" total - "+totalpoints);
 
                                     }
 
@@ -899,6 +947,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                                     if(finished)
                                     {
                                         teamdata.put("Finished",true);
+
                                     }
 
                                     for (Player player : playerArrayList)
@@ -917,12 +966,6 @@ public class LeaderboardActivity extends AppCompatActivity {
 
                                     db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").document(id).set(teamdata);
 
-
-
-
-
-
-
                                 }
                                 catch(Exception e)
                                 {
@@ -937,6 +980,48 @@ public class LeaderboardActivity extends AppCompatActivity {
                                 finishedforall=true;
                                 db.collection("Matches").document(matchid).collection("Contests").document(contestid).update("Finished",true);
                             }
+
+                            db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").orderBy("Points", Query.Direction.DESCENDING).limit(100).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    ArrayList<Participant> participants = new ArrayList<>();
+                                    int i =0;
+                                    for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots)
+                                    {
+                                        String id = documentSnapshot.getId();
+                                        double points;
+                                        try{
+                                            points = (double)documentSnapshot.get("Points");
+
+                                        }catch (Exception e)
+                                        {
+                                            points = (double)(((Long)documentSnapshot.get("Points")).intValue());
+                                        }
+                                        if(i==0)
+                                        {
+                                            i++;
+                                        }
+                                        else
+                                        {
+                                            if(participants.get(i-1).points != points)
+                                            {
+                                                i++;
+                                            }
+                                        }
+                                        participants.add(new Participant(id,points,i));
+
+                                        if(id.equals(participantID))
+                                        {
+                                            points_tv.setText(Constants.dec.format(points));
+                                            rank_tv.setText(String.valueOf(i));
+                                        }
+                                    }
+
+                                    participantListAdaptor = new ParticipantListAdaptor(LeaderboardActivity.this,R.layout.leaderboard_element,participants);
+                                    lv.setAdapter(participantListAdaptor);
+
+                                }
+                            });
 
                             updateContestStatustext();
 
@@ -973,14 +1058,13 @@ public class LeaderboardActivity extends AppCompatActivity {
 
             updateContestStatustext();
 
-            db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").orderBy("Points", Query.Direction.DESCENDING).limit(100).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            db.collection("Matches").document(matchid).collection("Contests").document(contestid).collection("Participants").orderBy("Points", Query.Direction.DESCENDING).limit(500).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                     ArrayList<Participant> participants = new ArrayList<>();
                     int i =0;
                     for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots)
                     {
-
                         String id = documentSnapshot.getId();
                         double points;
                         try{
@@ -1008,10 +1092,9 @@ public class LeaderboardActivity extends AppCompatActivity {
                             points_tv.setText(Constants.dec.format(points));
                             rank_tv.setText(String.valueOf(i));
                         }
-
                     }
 
-                    ParticipantListAdaptor participantListAdaptor = new ParticipantListAdaptor(LeaderboardActivity.this,R.layout.leaderboard_element,participants);
+                    participantListAdaptor = new ParticipantListAdaptor(LeaderboardActivity.this,R.layout.leaderboard_element,participants);
                     lv.setAdapter(participantListAdaptor);
 
                     if(mSwipeRefreshLayout.isRefreshing())
@@ -1058,6 +1141,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                                     }
 
                                     final double finalPoints = points;
+                                    final double finalPoints1 = points;
                                     db.collection("Matches").document(matchid).collection("Contests").document(contestid).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                         @Override
                                         public void onSuccess(final DocumentSnapshot documentSnapshot) {
@@ -1084,24 +1168,35 @@ public class LeaderboardActivity extends AppCompatActivity {
                                                                 db.collection("Users").document(id).update("Winnings",winnings);
                                                             }
                                                         });
-                                                    }
 
+
+
+                                                        String userid = id;
+                                                        Map<String,Object> notification = new HashMap<>();
+                                                        notification.put("type","contest");
+                                                        notification.put("message","Contest is finished\nCongrates, you are a winner in this contest.");
+                                                        notification.put("team1",team1);
+                                                        notification.put("team2",team2);
+                                                        notification.put("points", finalPoints);
+                                                        notification.put("date",System.currentTimeMillis());
+                                                        notification.put("rank",1);
+                                                        notification.put("winner",true);
+                                                        notification.put("award",prizeforeach);
+                                                        notification.put("contestname",contestname);
+                                                        db.collection("Users").document(userid).collection("Notifications").document(contestid).set(notification);
+
+
+                                                    }
                                                 }
                                             });
-
-
                                         }
                                     });
-
                                 }
                             });
                         }
-
                     }
                 });
-
             }
-
         }
 
 

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+{% load tags %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .outer-div{
+        //background-color: rgba(120 ,120, 120, 0.2);
+        width: 100%;
+    }
+    .tr1{
+        background-color: rgba(120, 120, 120, 0.5);
+        color: aliceblue;
+    }
+    .tr1:hover{
+        background-color: rgba(120, 120, 120, 0.8);
+    }
+    .inner-div{
+        cursor: pointer;
+        padding: 1% 4% 1% 4%;
+        transition: all 0.5s;
+    }
+    /*.inner-div:hover{
+        color: white;
+        padding: 1% 4% 1% 4%;
+        background-color: blue;
+        transition: all 0.5s;
+        z-index: 1;
+        box-shadow: 2px 2px rgba(120, 120, 255, 0.2);
+    }*/
+    .pt-class{
+        text-align: right;
+        right: 4%;
+    }
+    #myBtn{
+        position: sticky;
+        left: 80%;
+        width: 20%;
+        top: 2%;
+    }
+    #myBtn:hover{
+        box-shadow: 2px 2px 5px rgba(255, 120, 120, 0.5);
+        z-index: 1;
+    }
+</style>
+
+<h1 style='text-align: center;'>Current Status <i>(Total Points : {{ TeamPoints }})</i></h1>
+
+<a href="{% url 'fantasycricket:leaderboard' %}">
+    <button type="button" class="btn btn-danger" id="myBtn" onclick="showLoader()">LeaderBoard</button>
+</a>
+
+<div class='outer-div'>
+    <!--div class='inner-div row'>
+        <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6' style='text-align: center;'><span style='font-size: 18px;'><b>Player</b></span> <i><span style='font-size: 12px;'>(Team) </span></i></div>
+        <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6' style='text-align: right; right: 2%;'><b>Points</b></div>
+    </div>
+    {% for player in players %}
+        <div class='inner-div row'>
+            <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6'>
+                <span style='font-size: 18px;'> {{ player.name }} </span> <i><span style='font-size: 12px;'>( {{ player.team }} )</span></i>
+            </div>
+            <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6 pt-class'>
+                <span> {{ player.points }} </span>
+            </div>
+        </div>
+    {% endfor %}-->
+    
+    
+    
+    
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th>Player(Team)</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+                <tr class='tr1'>
+                    <td>{{ player.name }} <i>({{ player.team }})</i></td>
+                    <td>{{ player.points }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    
+</div>
+{% endblock %}

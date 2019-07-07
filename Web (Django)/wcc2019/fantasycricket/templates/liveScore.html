@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+{% load tags %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .outer-div{
+        //background-color: aliceblue;
+        width: 100%;
+    }
+    .tr1{
+        background-color: rgba(120, 120, 120, 0.5);
+        color: aliceblue;
+    }
+    .tr1:hover{
+        background-color: rgba(120, 120, 120, 0.8);
+    }
+    .inner-div{
+        cursor: pointer;
+        padding: 1% 4% 1% 4%;
+        transition: all 0.5s;
+    }
+    /*.inner-div:hover{
+        color: white;
+        padding: 1% 4% 1% 4%;
+        background-color: blue;
+        transition: all 0.5s;
+        z-index: 1;
+        box-shadow: 2px 2px rgba(120, 120, 255, 0.2);
+    }*/
+    .pt-class{
+        text-align: right;
+        right: 4%;
+    }
+    #myBtn{
+        position: sticky;
+        left: 80%;
+        width: 20%;
+        top: 2%;
+    }
+    #myBtn:hover{
+        box-shadow: 2px 2px 5px rgba(255, 120, 120, 0.5);
+        z-index: 1;
+    }
+    .headerCust{
+        text-align: center;
+        color: aliceblue;
+    }
+    .custBtn{
+        width: 100%;
+        padding: 2%;
+        margin: 0;
+        background-color: brown;
+        border: 0px;
+        color: white;
+        text-align: center;
+        font-size: 30px;
+        position: sticky;
+        top: 0px;
+        transition: all 0.5s;
+    }
+    .custBtn:hover{
+        padding-right: 5%;
+        box-shadow: 5px 5px 10px brown;
+        transition: all 0.5s;
+    }
+</style>
+
+<marquee><h1 style='text-align: center;'>LIVE SCORE</h1></marquee>
+
+<div class='row'>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-12'><button id='battingbat1' class='custBtn'> {{ batting1.title }} </button></div>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-12'><button id='battingbat2' class='custBtn'> {{ batting2.title }} </button></div>
+</div>
+
+<script>
+    $('#battingbat1').on('click', function(){
+        console.log('hey1');
+        $('.divbowl2').css('display', 'none');
+        $('.divbat2').css('display', 'none');
+        $('.divbowl1').css('display', 'block');
+        $('.divbat1').css('display', 'block');
+    })
+    $('#battingbat2').on('click', function(){
+        console.log('hey2');
+        $('.divbowl1').css('display', 'none');
+        $('.divbowl2').css('display', 'block');
+        $('.divbat1').css('display', 'none');
+        $('.divbat2').css('display', 'block');
+    })
+</script>
+
+<!--    BATTING DATA    -->
+<div class='outer-div divbat1'>
+    <h3 class='headerCust'>{{ batting1.title }}</h3>
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th>Player</th>
+                <th>Score(Balls)</th>
+                <th>Dismissal</th>
+                <th>4's</th>
+                <th>6's</th>
+                <th>Strike rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in batting1.scores %}
+                <tr class='tr1'>
+                    {% if user.batsman == "Extras" %}
+                        <td> {{ user.batsman }} </td>
+                        <td> {{ user.detail }} </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% else %}
+                        <td> {{ user.batsman }} </td>
+                        <td> {{ user.R }}{% if not user.dismissal %}*{% endif %}<i>({{ user.B }})</i> </td>
+                        <td style='font-size: 12px;'> <i>{{ user|filterKey:"dismissal-info" }}</i> </td>
+                        <td> {{ user.4s }} </td>
+                        <td> {{ user.6s }} </td>
+                        <td> {{ user.SR }} </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class='outer-div divbat2' style='display: none;'>
+    <h3 class='headerCust'>{{ batting2.title }}</h3>
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th>Player</th>
+                <th>Score(Balls)</th>
+                <th>Dismissal</th>
+                <th>4's</th>
+                <th>6's</th>
+                <th>Strike rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in batting2.scores %}
+                <tr class='tr1'>
+                    {% if user.batsman == "Extras" %}
+                        <td> {{ user.batsman }} </td>
+                        <td> {{ user.detail }} </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% else %}
+                        <td> {{ user.batsman }} </td>
+                        <td> {{ user.R }}{% if user.dismissal == "not out" %}*{% endif %}<i>({{ user.B }})</i> </td>
+                        <td style='font-size: 12px;'> <i>{{ user|filterKey:"dismissal-info" }}</i> </td>
+                        <td> {{ user.4s }} </td>
+                        <td> {{ user.6s }} </td>
+                        <td> {{ user.SR }} </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!--    BOWLING DATA ----->
+<div class='outer-div divbowl1'>
+    <h3 class='headerCust'>{{ bowling1.title }}</h3>
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th>Player</th>
+                <th>Overs</th>
+                <th>Runs</th>
+                <th>Maiden</th>
+                <th>Wickets</th>
+                <th>Economy</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in bowling1.scores %}
+                {% if not user.O == 0 %}
+                    <tr class='tr1'>
+                        <td> {{ user.bowler }} </td>
+                        <td> {{ user.O }}</td>
+                        <td> {{ user.R }}</td>
+                        <td> {{ user.M }} </td>
+                        <td> {{ user.W }} </td>
+                        <td> {{ user.Econ }} </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class='outer-div divbowl2' style='display: none;'>
+    <h3 class='headerCust'>{{ bowling2.title }}</h3>
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                <th>Player</th>
+                <th>Overs</th>
+                <th>Maiden</th>
+                <th>Wickets</th>
+                <th>Economy</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in bowling2.scores %}
+                {% if not user.O == 0 %}
+                    <tr class='tr1'>
+                        <td> {{ user.bowler }} </td>
+                        <td> {{ user.O }}</td>
+                        <td> {{ user.M }} </td>
+                        <td> {{ user.W }} </td>
+                        <td> {{ user.Econ }} </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

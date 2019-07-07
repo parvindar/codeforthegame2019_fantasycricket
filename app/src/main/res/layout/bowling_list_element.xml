@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_player_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bowling"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_overs_bowled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="O"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_maidens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="M"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_runs_conceded"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="R"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_wickets_taken"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="W"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_economy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Econ"
+            android:textSize="16sp" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

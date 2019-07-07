@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_team1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/design_default_color_primary"
+                android:text="team 1"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btn_team2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/design_default_color_primary"
+                android:text="team 2"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView48"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Batting"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ListView
+                    android:id="@+id/lv_batting_team1"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp" />
+
+                <ListView
+                    android:id="@+id/lv_batting_team2"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp" />
+
+                <TextView
+                    android:id="@+id/textView49"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Bowling"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ListView
+                    android:id="@+id/lv_bowling_team1"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp" />
+
+                <ListView
+                    android:id="@+id/lv_bowling_team2"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

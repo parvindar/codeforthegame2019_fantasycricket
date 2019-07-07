@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+{% load tags %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .single-contest-box{
+        color: aliceblue;
+        padding: 2%;
+        margin: 1%;
+        background-color: rgba(120, 120, 120, 0.5);
+        cursor: pointer;
+        position: relative;
+        width: 70%;
+        left: 15%;
+        right: 15%;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(120, 120, 255, 0.2);
+        transition: all 1s;
+    }
+    .single-contest-box:hover{
+        //width: 80%;
+        //left: 10%;
+        background-color: rgba(120, 120, 120, 0.8);
+        box-shadow: 2px 2px 8px rgba(120, 120, 255, 0.2);
+        transition: all 1s;
+    }
+    
+    @media only screen and (max-width: 750px){
+        .single-contest-box{
+            width: 96%;
+            left: 2%;
+            right: 2%;
+            transition: all 1s;
+        }
+    }
+    
+    .contest-header{
+        font-size: 20px;
+    }
+    
+    .custBtn{
+        text-align: center;
+        margin: 2px;
+        padding: 4%;
+        background-color: rgba(120, 120, 255, 0.2);
+        transition: all 0.2s;
+    }
+    .custBtn:hover{
+        padding-left: 8%;
+        transition: all 0.2s;
+    }
+</style>
+
+
+<div class="outer-box">
+    <form method='post' action="{% url 'fantasycricket:myContestStatus' %}">
+        {% csrf_token %}
+        {% for contest in contests %}
+            <div class='single-contest-box'>
+                <input type="radio" value="{{ contest.id }}" name="choice_contest_id" id='single-contest{{ forloop.counter }}' style='display:none;'>
+                <div class="contest-header"> <img src="{% static 'image/contest.png' %}" height='50px' width='50px'> <b>{{ contest.ContestName }}</b> </div>
+                <div class='row'>
+                    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-12'>
+                        <div style='text-align: 18px;'> <i>Prize : {{ contest.TotalPrize }}</i> </div>
+                        <div style='text-align: 15px;'> <i>{{ contest.SpotsFilled }} Registered</i> </div>
+                    </div>
+                    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-12'>
+                        <button class='custBtn' id='single-contest-btn{{ forloop.counter }}' onclick="showLoader()"> <b><i>See Status</i></b> </button>
+                    </div>
+                </div>
+                <br>
+                <script>
+                    $('#single-contest-btn{{ forloop.counter }}').on('mouseover', function(){
+                        $('#single-contest{{ forloop.counter }}').prop('checked', true);
+                    })
+                    $('#single-contest-btn{{ forloop.counter }}').on('mouseout', function(){
+                        $('#single-contest{{ forloop.counter }}').prop('checked', false);
+                    })
+                </script>
+            </div>
+        {% endfor %}
+    </form>
+</div>
+
+{% endblock %}

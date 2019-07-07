@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load static %}
+{% load tags %}
+
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    .single-contest-box{
+        padding: 2%;
+        margin: 1%;
+        background-color: aliceblue;
+        cursor: pointer;
+        position: relative;
+        width: 70%;
+        left: 15%;
+        right: 15%;
+        text-align: center;
+        box-shadow: 2px 2px 5px rgba(120, 120, 255, 0.2);
+        transition: all 1s;
+    }
+    .single-contest-box:hover{
+        padding: 4%;
+        box-shadow: 2px 2px 8px rgba(120, 120, 255, 0.2);
+        transition: all 1s;
+    }
+    
+    @media only screen and (max-width: 750px){
+        .single-contest-box{
+            width: 96%;
+            left: 2%;
+            right: 2%;
+            transition: all 1s;
+        }
+    }
+    
+    .contest-header{
+        font-size: 20px;
+    }
+    
+    .modal-header, h4, .close {
+        background-color: #5cb85c;
+        color:white !important;
+        text-align: center;
+        font-size: 30px;
+    }
+    .modal-footer {
+        background-color: #f9f9f9;
+    }
+    
+    #myBtn{
+        position: sticky;
+        top: 2%;
+        z-index: 1;
+        left: 60%;
+        width: 40%;
+        background-color: darkgoldenrod;
+        color: white;
+    }
+    .btn-block{
+        background-color: blue;
+    }
+</style>
+
+<button type="button" class="btn btn-default btn-lg" id="myBtn">Create New Contest</button>
+
+
+<div class="outer-box">
+    {% if already_enrolled %}
+        <div class='alert alert-success'> {{ already_enrolled }} </div>
+    {% endif %}
+    <form method='post' action="{% url 'fantasycricket:contestSelectPlayers' %}">
+        {% csrf_token %}
+        {% for contest in contests %}
+            <div class='single-contest-box'>
+                <input type="radio" value="{{ contest.id }}" name="choice_contest_id" id='single-contest{{ forloop.counter }}' style='display:none;'>
+                <div class="contest-header"> <img src="{% static 'image/contest.png' %}" height='50px' width='50px'> <b>{{ contest.ContestName }}</b> </div>
+                <div class='row'>
+                    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6' style='text-align: left; font-size: 18px;'> Prize : {{ contest.TotalPrize }} </div>
+                    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6' style='text-align: right; font-size: 18px;'> Entry fee : {{ contest.Price }} </div>
+                </div>
+                <div class="progress">
+                    <!--div class="progress-bar{{ contest.id }} bg-danger progress-bar-striped"></div-->
+                    <div class="progress-bar progress-bar{{ contest.id }} progress-bar-striped progress-bar-animated"></div>
+                    <script>
+                        var width = ({{ contest.SpotsFilled }}/{{ contest.TotalSpots }})*100;
+                        $('.progress-bar{{ contest.id }}').css('width', width+'%');
+                    </script>
+                </div>
+                <div class='row'>
+                    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6' style='text-align: left; font-size: 12px;'> <i>Filled Spots : {{ contest.SpotsFilled }}</i> </div>
+                    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6' style='text-align: right; font-size: 12px;'> <i>Total Spot : {{ contest.TotalSpots }}</i> </div>
+                </div>
+                <button class='btn btn-primary' id='single-contest-btn{{ forloop.counter }}' onclick="showLoader()"> Take Part </button>
+                <br>
+                <script>
+                    $('#single-contest-btn{{ forloop.counter }}').on('mouseover', function(){
+                        //console.log('egfuiegfue');
+                        $('#single-contest{{ forloop.counter }}').prop('checked', true);
+                    })
+                    $('#single-contest-btn{{ forloop.counter }}').on('mouseout', function(){
+                        //console.log('egfuiegfue');
+                        $('#single-contest{{ forloop.counter }}').prop('checked', false);
+                    })
+                </script>
+            </div>
+        {% endfor %}
+    </form>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: skyblue;">
+            <div class="modal-header" style="padding:35px 50px; background-color: skyblue;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 style="background-color: skyblue;"><span class="glyphicon glyphicon-lock"></span> Create Contest </h4>
+            </div>
+            <div class="modal-body" style="padding:40px 50px; background-color: aliceblue;">
+                <form role="form" method='post'>
+                    {% csrf_token %}
+                    <div id='entry-fee-calc'></div>
+                    <input type='text' name='price' style='display: none;' id='id_price'>
+                    <div class="form-group">
+                        <label for="name"><span class="glyphicon glyphicon-user"></span> Contest Name </label>
+                        <input type="text" class="form-control" id="name" placeholder="Name...." name='contestName'>
+                    </div>
+                    <div class="form-group">
+                        <label for="totSpots"><span class="glyphicon glyphicon-user"></span> Total Spots </label>
+                        <input type="number" class="form-control" id="totSpots" placeholder="Must be less than 2000..." name='totSpots'>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_prize"><span class="glyphicon glyphicon-eye-open"></span> Prize </label>
+                        <input type="number" class="form-control" id="id_prize" placeholder="Must be less than 10000.." name='prize'>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_type"><span class="glyphicon glyphicon-eye-open"></span> Contest Type: </label>
+                        <select name="contestType" id='id_type'>
+                            <option value="half">50% people will get prize</option>
+                            <option value="winnerAll" id='showText2'>Winner Takes all </option><div style='display: none;' id='showdiv2'>(all participants with highest score will take prize)</div>
+                            <script>
+                                $('#showText2').on('mouseover', function(){
+                                    $('showdiv2').css('display', 'block');
+                                }).on('mouseout', function(){
+                                    $('showdiv2').css('display', 'none');
+                                })
+                            </script>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block" name='createContest'><span class="glyphicon glyphicon-off" onclick="showLoader()"></span> Create </button>
+                    <script>
+                        // calculate entry fee
+                        function calcFee(){
+                            var totSpots = document.getElementById('totSpots').value;
+                            var prize = document.getElementById('id_prize').value;
+                            $('#entry-fee-calc').html('<i><b>Entry fee per team : ' + ((prize*(6/5))/totSpots).toFixed(2).toString() + '</b></i>');
+                            document.getElementById('id_price').value = ((prize*(6/5))/totSpots).toFixed(2).toString();
+                        }
+                        $('#totSpots').on('input', function(e){
+                            if(this.value>2000){
+                                this.value = 2000;
+                            }
+                            calcFee();
+                        })
+                        $('#id_prize').on('input', function(){
+                            if(this.value>10000){
+                                this.value = 10000;
+                            }
+                            calcFee();
+                        })
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+ 
+<script>
+$(document).ready(function(){
+  $("#myBtn").click(function(){
+    $("#myModal").modal();
+  });
+});
+</script>
+
+{% endblock %}

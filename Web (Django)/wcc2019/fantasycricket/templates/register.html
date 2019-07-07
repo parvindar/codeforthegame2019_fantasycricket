@@ -1,0 +1,110 @@
+{% extends 'baseHome.html' %}
+
+{% block body %}
+
+<!--form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button>Register</button>
+    <div>Already have a account? <a href="{% url 'fantasycricket:login' %}">Click here</a> to login</div>
+</form-->
+
+
+{% if error %}
+    <div class='alert alert-danger'>{{ error }}</div>
+{% endif %}
+
+
+<!--style>
+    .form-box{
+        position: relative;
+        padding: 2%;
+        margin: 1%;
+        width: 60%;
+        left: 17%;
+        background-color: aliceblue;
+        border: 0.2px solid aliceblue;
+        transition: all 0.3s;
+    }
+    @media only screen and (max-width: 800px){
+        .form-box{
+            width: 90%;
+            left: 5%;
+            right: 5%;
+            transition: all 0.3s;
+        }
+    }
+    
+    label{
+        text-align: center;
+        width: 30%;
+    }
+    input{
+        width: 50%;
+    }
+</style-->
+
+
+<style>
+    .form-box{
+        position: relative;
+        padding: 2%;
+        margin: 1%;
+        width: 50%;
+        left: 22%;
+        background-color: rgba(120, 120 ,120, 0.5);
+        border: 0.2px solid aliceblue;
+        transition: all 0.3s;
+        border-radius: 5% 5%;
+    }
+    @media only screen and (max-width: 800px){
+        .form-box{
+            width: 90%;
+            left: 5%;
+            right: 5%;
+            transition: all 0.3s;
+        }
+    }
+    .form-box:hover{
+        box-shadow: 5px 5px 8px rgba(120 ,120, 120, 0.5);
+    }
+    label{
+        text-align: center;
+        width: 30%;
+    }
+    input{
+        width: 50%;
+        background-color: rgba(255, 255, 255, 0.0);
+        border: 0px;
+        border-bottom: 0.3px solid white;
+        outline: none;
+        transition: width 0.3s;
+    }
+    input:focus{
+        width: 60%;
+        transition: width 0.3s;
+    }
+    label{
+        color: white;
+    }
+    .headerRegister{
+        font-family: 'Century Gothic';
+        text-align: center;
+        color: aliceblue;
+        font-size: 50px;
+    }
+</style>
+
+<div class='form-box'>
+    <h3 class='headerRegister'>Register</h3>
+    <form method='post'>
+        {% csrf_token %}
+        <div style='text-align: left; font-size: 20px; padding: 2%;'>
+            {{ form.as_p }}
+        </div>
+        <button class='btn btn-primary' style="position: relative; left: 40%; width: 20%;">Register</button>
+        <div style="text-align: center; color:aliceblue;">Already have an account? <a href="{% url 'fantasycricket:login' %}">Click here</a> to login</div>
+    </form>
+</div>
+
+{% endblock %}

@@ -104,13 +104,11 @@
             </android.support.v4.widget.SwipeRefreshLayout>
 
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="5"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btn_mymatches"
@@ -129,6 +127,16 @@
                     android:background="@color/design_default_color_primary"
                     android:text="Me"
                     android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btn_notifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/design_default_color_primary"
+                    android:text="Notifications"
+                    android:textColor="@android:color/white" />
+
             </LinearLayout>
         </LinearLayout>
 

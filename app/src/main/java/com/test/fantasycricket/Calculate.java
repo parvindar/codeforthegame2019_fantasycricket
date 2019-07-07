@@ -48,9 +48,6 @@ public class Calculate {
         }
 
 
-
-
-
         return  point;
     }
 
@@ -121,16 +118,18 @@ public class Calculate {
             double point=0;
 
      /*         "catch": 3,                  // -----------------> Catches
+                "runout":
                 "lbw": 4,                  // -----------------> LBWs
                 "stumped": 2,                  // -----------------> Stumped
                 "bowled": 0                  // -----------------> Bowled
     */
-            double catchball,lbw,stumped,bowled;
+            double catchball,lbw,stumped,bowled,runout;
 
             catchball=(double)((Integer)player.get("catch")).intValue();
             lbw=(double)((Integer)player.get("lbw")).intValue();
             stumped=(double)((Integer)player.get("stumped")).intValue();
             bowled=(double)((Integer)player.get("bowled")).intValue();
+            runout =(double)((Integer)player.get("runout")).intValue();
 
 
             point+=catchball*4;

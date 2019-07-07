@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% load tags %}
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    #heading-select{
+        color: aliceblue;
+        font-size: 30px;
+    }
+    .main-box{
+        text-align: center;
+        margin-top: 1%;
+    }
+    .team-header{
+        font-size: 20px;
+        padding: 2%;
+        margin-bottom: 2px;
+        background-color: blue;
+        color: aliceblue;
+        box-shadow: 2px 2px 5px blue;
+    }
+    .team-header-1{
+        font-size: 20px;
+        padding: 2%;
+        margin-bottom: 2px;
+        background-color: blue;
+        color: aliceblue;
+        box-shadow: 2px 2px 5px blue;
+    }
+    .player-box{
+        cursor: pointer;
+        margin: 2px;
+        padding: 1%;
+        font-size: 18px;
+        background-color: aliceblue;
+        transition: all 1s;
+    }
+    .player-box:hover{
+        background-color: rgba(120, 120, 255, 0.2);
+        box-shadow: 2px 2px 5px rgba(120, 120, 255, 0.2);
+        z-index: 1;
+        transition: all 1s;
+    }
+    .custom-btn{
+        font-size: 18px;
+        text-align: center;
+    }
+    .trigger-class{
+        color: white;
+        background-color: rgba(120, 120, 255, 0.5);
+        transition: all 1s;
+    }
+    .error-class{
+        background-color: red;
+        color: white;
+    }
+    .captain-class{
+        background-color: red;
+        color: white;
+    }
+    .vice-captain-class{
+        background-color: orange;
+        color: white;
+    }
+    .abs-div{
+        position: absolute;
+        text-align: center;
+        top: 0;
+    }
+    .next-btn-class{
+        position: sticky;
+        left: 80%;
+        width: 20%;
+        z-index: 2;
+        top: 0;
+    }
+    .next-btn-class:hover{
+        box-shadow: 2px 2px 5px green;
+    }
+    #showCredits{
+        font-size: 15px;
+        color: white;
+    }
+</style>
+
+<h3 style='text-align: center;' id='heading-select'> Select 11 players </h3>
+
+{% if error %}
+<div class='error-class'> <i>{{ error }}</i> </div>
+{% endif %}
+<i><div id='showCredits'></div></i>
+<script>
+    var counterPlayer = 0;
+    var captainId;
+    var totCredits = 0;
+</script>
+<div class='abs-div'></div><button type='button' id='id-select-btn' class='btn btn-success next-btn-class'>Next</button>
+<form method='post'>
+    {% csrf_token %}
+    <button name='choice_confirmed' class='btn btn-success custom-btn next-btn-class' style='display:none;' onclick="showLoader()">Confirm</button>
+    <div class="row main-box">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div class='team-header-1' style='display: none;'>My Team</div>
+            <!--div>Select Captain</div>
+            <div>Select Vice captain</div-->
+            <div class='team-header'>{{ t1 }}</div>
+            {% for player in players1 %}
+                <!--input type='checkbox' value='{{ player.pid }}'-->
+                <input type='checkbox' value='{{ player.name }},{{ player.pid }},{{ t1 }}' id='player{{ player.pid }}' name='players' style='display: none;'>
+                <input type='radio' value='{{ player.name }},{{ player.pid }},{{ t1 }}' id='playerCap{{ player.pid }}' name='captain' style='display: none;'>
+                <input type='radio' value='{{ player.name }},{{ player.pid }},{{ t1 }}' id='playerViceCap{{ player.pid }}' name='v_captain' style='display: none;'>
+                <div class='player-box' id='iplabelplayer{{ player.pid }}'> {{ player.name }} <i>({{ player.credit }})</i> </div>
+                <script>
+                    $('#iplabelplayer{{ player.pid }}').on('click', function(){
+                        console.log(counterPlayer);
+                        
+                        // selecting players
+                        if(counterPlayer==0){
+                            $('#player{{ player.pid }}').trigger('click');
+                            console.log($('#player{{ player.pid }}').prop('checked'));
+                            // Restrict more than 11 players select
+                            var count = $(":checkbox:checked").length;
+                            if(count>11){
+                                $('#player{{ player.pid }}').trigger('click');
+                                alert("You can't select more than 11 players");
+                                return;
+                            }
+                            // Restrict more than 100 credits
+                            if(totCredits+{{ player.credit }} > 100 && $('#player{{ player.pid }}').prop('checked')==true){
+                                $('#player{{ player.pid }}').trigger('click');
+                                alert("You can't select more than 100 credits");
+                                return;
+                            }
+                            if($('#player{{ player.pid }}').prop('checked')==true){
+                                totCredits += {{ player.credit }};
+                            }
+                            else if($('#player{{ player.pid }}').prop('checked')==false){
+                                totCredits -= {{ player.credit }};
+                            }
+                            
+                            $('#showCredits').html('Total Credits selected ' + totCredits.toString());
+                            $('#iplabelplayer{{ player.pid }}').toggleClass('trigger-class');
+                        }
+                        
+                        // selecting captain
+                        else if(counterPlayer==1){
+                            $('.captain-class').removeClass('captain-class');
+                            $('#iplabelplayer{{ player.pid }}').addClass('captain-class');
+                            $('#playerCap{{ player.pid }}').attr('checked', 'true');
+                            console.log($('#playerCap{{ player.pid }}').val());
+                            
+                            // set captainID such that vice captain and captain can't be same
+                            captainId = 'iplabelplayer{{ player.pid }}';
+                            console.log(captainId);
+                            //counterPlayer++;
+                        }
+                        
+                        // selecting vice captain
+                        else if(counterPlayer==2){
+                            if(captainId=='iplabelplayer{{ player.pid }}'){
+                                alert("You can't select your captain as Vice Captain");
+                                return;
+                            }
+                            $('.vice-captain-class').removeClass('vice-captain-class');
+                            $('#iplabelplayer{{ player.pid }}').addClass('vice-captain-class');
+                            $('#playerViceCap{{ player.pid }}').attr('checked', 'true');
+                            //counterPlayer++;
+                        }
+                    })
+                </script>
+            {% endfor %}
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div class='team-header'>{{ t2 }}</div>
+            {% for player in players2 %}
+                <!--input type='checkbox' value='{{ player.pid }}'-->
+                <input type='checkbox' value='{{ player.name }},{{ player.pid }},{{ t2 }}' id='player{{ player.pid }}' name='players' style='display: none;'>
+                <input type='radio' value='{{ player.name }},{{ player.pid }},{{ t2 }}' id='playerCap{{ player.pid }}' name='captain' style='display: none;'>
+                <input type='radio' value='{{ player.name }},{{ player.pid }},{{ t2 }}' id='playerViceCap{{ player.pid }}' name='v_captain' style='display: none;'>
+                <div class='player-box' id='iplabelplayer{{ player.pid }}'> {{ player.name }} <i>({{ player.credit }})</i> </div>
+                <script>
+                    $('#iplabelplayer{{ player.pid }}').on('click', function(){
+                        console.log(counterPlayer);
+                        
+                        // selecting players
+                        if(counterPlayer==0){
+                            $('#player{{ player.pid }}').trigger('click');
+                            console.log($('#player{{ player.pid }}').prop('checked'));
+                            // Restrict more than 11 players select
+                            var count = $(":checkbox:checked").length;
+                            if(count>11){
+                                $('#player{{ player.pid }}').trigger('click');
+                                alert("You can't select more than 11 players");
+                                return;
+                            }
+                            // Restrict more than 100 credits
+                            if(totCredits+{{ player.credit }} > 100 && $('#player{{ player.pid }}').prop('checked')==true){
+                                $('#player{{ player.pid }}').trigger('click');
+                                alert("You can't select more than 100 credits");
+                                return;
+                            }
+                            if($('#player{{ player.pid }}').prop('checked')==true){
+                                totCredits += {{ player.credit }};
+                            }
+                            else if($('#player{{ player.pid }}').prop('checked')==false){
+                                totCredits -= {{ player.credit }};
+                            }
+                            
+                            $('#showCredits').html('Total Credits selected ' + totCredits.toString());
+                            $('#iplabelplayer{{ player.pid }}').toggleClass('trigger-class');
+                            
+                            /*
+                            $('#player{{ player.pid }}').trigger('click');
+                            // Restrict more than 11 players select
+                            var count = $(":checkbox:checked").length;
+                            if(count>11){
+                                $('#player{{ player.pid }}').trigger('click');
+                                alert("You can't select more than 11 players");
+                                return;
+                            }
+                            // Restrict more than 100 credits
+                            if(totCredits+{{ player.credit }} > 100){
+                                $('#player{{ player.pid }}').trigger('click');
+                                alert("You can't select more than 100 credits");
+                                return;
+                            }
+                            totCredits += {{ player.credit }};
+                            $('#showCredits').html('Total Credits selected ' + totCredits.toString());
+                            $('#iplabelplayer{{ player.pid }}').toggleClass('trigger-class');
+                            */
+                        }
+                        
+                        // selecting captain
+                        else if(counterPlayer==1){
+                            $('.captain-class').removeClass('captain-class');
+                            $('#iplabelplayer{{ player.pid }}').addClass('captain-class');
+                            $('#playerCap{{ player.pid }}').attr('checked', 'true');
+                            console.log($('#playerCap{{ player.pid }}').val());
+                            
+                            // set captainID such that vice captain and captain can't be same
+                            captainId = 'iplabelplayer{{ player.pid }}';
+                            console.log(captainId);
+                            //counterPlayer++;
+                        }
+                        
+                        // selecting vice captain
+                        else if(counterPlayer==2){
+                            if(captainId=='iplabelplayer{{ player.pid }}'){
+                                alert("You can't select your captain as Vice Captain");
+                                return;
+                            }
+                            $('.vice-captain-class').removeClass('vice-captain-class');
+                            $('#iplabelplayer{{ player.pid }}').addClass('vice-captain-class');
+                            $('#playerViceCap{{ player.pid }}').attr('checked', 'true');
+                            //counterPlayer++;
+                        }
+                    })
+                </script>
+            {% endfor %}
+        </div>
+        <!--script>
+            // restrict more than 11 players select
+            var count = $(":checkbox:checked").length;
+            console.log(count);
+            
+            
+            $('input[name=players]').on('change', function(e){
+                console.log('whoops');
+                count++;
+                if(count>11){
+                    alert('You can select maximum 11 players');
+                    e.preventDefault();
+                }
+            })
+        </script-->
+    </div>
+    <script>
+        $('#id-select-btn').on('click', function(){
+            if(counterPlayer==0){
+                if($(":checkbox:checked").length<11){
+                    alert('Please select 11 players within given credits');
+                    return;
+                }
+            }
+            else if(counterPlayer==1){
+                if($(":radio[name='captain']:checked").length<1){
+                    alert('Please select your team Captain');
+                    return;
+                }
+            }
+            else if(counterPlayer==2){
+                if($(":radio[name='v_captain']:checked").length<1){
+                    alert('Please select your team Vice Captain');
+                    return;
+                }
+            }
+            counterPlayer++;
+            console.log(counterPlayer);
+            if(counterPlayer==3){
+                $('.custom-btn').css('display', 'block');
+                $('#id-select-btn').css('display', 'none');
+            }
+            if(counterPlayer==1){
+                $('#heading-select').html('Select Captain');
+                $('.team-header-1').html('My Team <i>(Select Captain)</i>');
+            }
+            if(counterPlayer==2){
+                $('#heading-select').html('Select Vice Captain');
+                $('.team-header-1').html('My Team <i>(Select Vice Captain)</i>');
+            }
+            $('.player-box').css({'display': 'none', 'transition': 'all 0.5s'});
+            var icons = $("div").find("input[type=checkbox]:checked");
+            console.log(icons);
+            icons.each(function() {
+                var id_use = $(this).attr("id");
+                $('.team-header').css('display', 'none');
+                $('.team-header-1').css('display', 'block');
+                $('#'+'iplabel'+id_use).css('display', 'block');
+                $('.col-sm-12').removeClass('col-lg-6');
+                $('.col-sm-12').removeClass('col-md-6');
+                $('.col-sm-12').addClass('col-lg-12');
+                $('.col-sm-12').addClass('col-md-12');
+            });
+        })
+    </script>
+</form>
+
+{% endblock %}
