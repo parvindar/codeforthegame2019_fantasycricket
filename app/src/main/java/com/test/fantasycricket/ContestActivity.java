@@ -1334,6 +1334,7 @@ public class ContestActivity extends AppCompatActivity {
             @Override
             public View getView(final int position, View convertView, final ViewGroup parent) {
                 if(getItem(position)!=null) {
+
                     LayoutInflater inflater = LayoutInflater.from(mContext);
                     convertView = inflater.inflate(mResource, parent, false);
 
@@ -1353,7 +1354,6 @@ public class ContestActivity extends AppCompatActivity {
                     {
                         economy.setTextSize(TypedValue.COMPLEX_UNIT_SP,12f);
                     }
-
 
                 }
                 return convertView;

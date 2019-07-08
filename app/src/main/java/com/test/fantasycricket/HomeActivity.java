@@ -295,8 +295,16 @@ public class HomeActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(HomeActivity.this, NotificationsActivity.class);
-                startActivity(intent);
+                if(UserInfo.logined)
+                {
+                    Intent intent = new Intent(HomeActivity.this,NotificationsActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    UserInfo.instantLogin(HomeActivity.this);
+                    Toast.makeText(HomeActivity.this,"You need to login first!",Toast.LENGTH_LONG).show();
+                }
             }
         });
 
