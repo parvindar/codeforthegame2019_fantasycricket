@@ -519,11 +519,8 @@ public class HomeActivity extends AppCompatActivity
                     {
                         if(!match.getString("type").equals("ODI") || !Constants.getWorldcupteams().contains(team1.toLowerCase()) || !Constants.getWorldcupteams().contains(team2.toLowerCase()) )
                         {
-
                             if(!team1.equals("TBA"))
                                 continue;
-
-
                         }
 
                         matchtype = "ICC World Cup";
@@ -571,7 +568,24 @@ public class HomeActivity extends AppCompatActivity
                     long mills = d.getTime() - Calendar.getInstance().getTime().getTime();
                     long hours = mills/(1000 * 60 * 60);
                     long mins = (mills/(1000*60)) % 60;
-                    String timeremaining;
+
+                    if(selectedtype.equals("World Cup"))
+                    {
+                        if((team1.equals("TBA")&& team2.equals("TBA")) && (d.getDate()!= 14 || d.getHours()!=15))
+                        {
+                            continue;
+                        }
+                    }
+
+                    if(selectedtype.equals("ODI"))
+                    {
+                        if((team1.equals("TBA")&& team2.equals("TBA")) && (d.getDate()!= 14 || d.getHours()!=15))
+                        {
+                            matchtype="ODI";
+                        }
+                    }
+
+                        String timeremaining;
                     if(hours>48)
                     {
                         timeremaining = hours/24 +" days to go";

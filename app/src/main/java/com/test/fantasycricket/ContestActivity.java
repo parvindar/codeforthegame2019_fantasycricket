@@ -68,7 +68,7 @@ public class ContestActivity extends AppCompatActivity {
     static boolean started;
     static TextView team1scoretv;
     static TextView team2scoretv;
-    String winner_team="";
+    static String winner_team="";
 
 
 
@@ -1127,8 +1127,10 @@ public class ContestActivity extends AppCompatActivity {
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
-            Button btn_team1= getView().findViewById(R.id.btn_team1);
-            Button btn_team2= getView().findViewById(R.id.btn_team2);
+            final Button btn_team1= getView().findViewById(R.id.btn_team1);
+            final Button btn_team2= getView().findViewById(R.id.btn_team2);
+            btn_team1.setText(team1);
+            btn_team2.setText(team2);
 
             lv_batting_team1 = getView().findViewById(R.id.lv_batting_team1);
             lv_bowling_team1= getView().findViewById(R.id.lv_bowling_team1);
@@ -1150,10 +1152,14 @@ public class ContestActivity extends AppCompatActivity {
             lv_bowling_team2.setAdapter(bowlingListAdaptor_team2);
 
 
+
             new getteamtask().execute();
+
 
             lv_batting_team2.setVisibility(View.GONE);
             lv_bowling_team2.setVisibility(View.GONE);
+            btn_team1.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
 
             btn_team1.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1162,6 +1168,9 @@ public class ContestActivity extends AppCompatActivity {
                     lv_bowling_team2.setVisibility(View.GONE);
                     lv_batting_team1.setVisibility(View.VISIBLE);
                     lv_bowling_team1.setVisibility(View.VISIBLE);
+                    btn_team1.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                    btn_team2.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
                 }
             });
 
@@ -1173,6 +1182,9 @@ public class ContestActivity extends AppCompatActivity {
                     lv_bowling_team2.setVisibility(View.VISIBLE);
                     lv_batting_team1.setVisibility(View.GONE);
                     lv_bowling_team1.setVisibility(View.GONE);
+                    btn_team1.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    btn_team2.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
 
                 }
             });
@@ -1281,6 +1293,11 @@ public class ContestActivity extends AppCompatActivity {
                     TextView strike_rate = convertView.findViewById(R.id.tv_strike_rate);
                     TextView dismissalinfo= convertView.findViewById(R.id.tv_dismissal_info);
 
+                    if(getItem(position).name.equals(""))
+                    {
+                        dismissalinfo.setVisibility(View.GONE);
+                    }
+
                     playername_tv.setText(getItem(position).name);
                     runs.setText(getItem(position).runs);
                     fours.setText(getItem(position).fours);
@@ -1332,6 +1349,10 @@ public class ContestActivity extends AppCompatActivity {
                     runs_conceded.setText((getItem(position)).runs_conceded);
                     economy.setText((getItem(position)).economy);
                     playername_tv.setText(getItem(position).name);
+                    if(getItem(position).name.equals(""))
+                    {
+                        economy.setTextSize(TypedValue.COMPLEX_UNIT_SP,12f);
+                    }
 
 
                 }
@@ -1365,6 +1386,17 @@ public class ContestActivity extends AppCompatActivity {
                         bowling_list_team1.clear();
                         batting_list_team2.clear();
                         bowling_list_team2.clear();
+                        Player batterhead = new Player("","",0.0);
+                        batterhead.fillbattingstats("R","4s","6s","S/R","B","");
+
+                        Player bowlerhead = new Player("","",0.0);
+                        bowlerhead.fillbowlingstats("O","W","M","Econ","R");
+
+                        batting_list_team1.add(batterhead);
+                        batting_list_team2.add(batterhead);
+
+                        bowling_list_team1.add(bowlerhead);
+                        bowling_list_team2.add(bowlerhead);
 
 
 
@@ -1437,6 +1469,8 @@ public class ContestActivity extends AppCompatActivity {
                                         player.fillbattingstats(String.valueOf(p.get("R")),String.valueOf(p.get("4s")),String.valueOf(p.get("6s")),String.valueOf(p.get("SR")),String.valueOf(p.get("B")),String.valueOf(p.get("dismissal-info")));
 
                                     }
+                                    batting_list_team2.add(player);
+
 
                                 }
                             }

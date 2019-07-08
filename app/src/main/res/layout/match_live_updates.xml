@@ -56,12 +56,18 @@
                 <ListView
                     android:id="@+id/lv_batting_team1"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp" />
+                    android:layout_height="250dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:dividerHeight="8dp" />
 
                 <ListView
                     android:id="@+id/lv_batting_team2"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp" />
+                    android:layout_height="250dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:dividerHeight="8dp" />
 
                 <TextView
                     android:id="@+id/textView49"
@@ -75,12 +81,17 @@
                 <ListView
                     android:id="@+id/lv_bowling_team1"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp" />
+                    android:layout_height="250dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:dividerHeight="8dp" />
 
                 <ListView
                     android:id="@+id/lv_bowling_team2"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp" />
+                    android:layout_height="250dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
